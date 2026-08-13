@@ -1,0 +1,546 @@
+{
+  "RELIANCE": {
+    "about": "Reliance Industries (RIL) is India's largest private-sector conglomerate. It operates the world's single-largest refining complex at Jamnagar, India's largest telecom network (Jio) and the country's leading retail chain (Reliance Retail), and is building a new-energy ecosystem spanning solar, hydrogen, batteries and storage.",
+    "keyPoints": [
+      "Business model: integrated energy-to-consumer conglomerate with three engines — Oil-to-Chemicals (O2C), Jio and Reliance Retail.",
+      "Market position: #1 in Indian telecom subscribers, #1 organised retail in India, top-3 global refining capacity.",
+      "Key revenue drivers: refining margins, Jio ARPU & 5G monetisation, retail store expansion and new-energy capex.",
+      "Balance sheet: zero promoter pledge, investment-grade ratings and strong operating cash flow to fund expansion."
+    ],
+    "pros": [
+      "Zero promoter pledge with promoter holding steady at 50%+",
+      "Jio + Retail deliver high-margin, recurring cash flow",
+      "New-energy capex opens a decade-long growth runway",
+      "Fortress balance sheet can fund capex without dilution"
+    ],
+    "cons": [
+      "O2C refining margins are cyclical and volatile",
+      "FIIs have trimmed stake for two consecutive quarters",
+      "New-energy returns may be slow to become material",
+      "Conglomerate complexity can attract a holding-company discount"
+    ]
+  },
+  "TCS": {
+    "about": "Tata Consultancy Services (TCS) is India's largest IT services company and part of the Tata group. It provides software development, consulting and business transformation to global enterprises across banking, retail, healthcare and telecom.",
+    "keyPoints": [
+      "Business model: pure-play IT services and consulting, billed on a per-employee/time basis.",
+      "Market position: largest IT services exporter in India; top-3 globally by market cap.",
+      "Key revenue drivers: large deal wins, cloud & AI modernisation, BFSI and North America demand.",
+      "Financials: 48%+ RoE, ~100% free cash payout via buybacks and dividends."
+    ],
+    "pros": [
+      "Best-in-class RoE of 48%+ and ~27% EBITDA margin",
+      "Strong deal pipeline with AI transformation contracts",
+      "Nearly zero debt and huge net cash on books",
+      "Consistent shareholder returns (dividend + buyback)"
+    ],
+    "cons": [
+      "Growth is tied to the global IT spending cycle",
+      "US visa policy and wage inflation pressurise margins",
+      "Legacy maintenance work is shrinking with cloud adoption"
+    ]
+  },
+  "HDFCBANK": {
+    "about": "HDFC Bank is India's largest private sector bank. Post the merger with HDFC Ltd, it now combines a huge mortgage franchise with a best-in-class retail banking network, serving over 100 million customers.",
+    "keyPoints": [
+      "Business model: retail-heavy commercial bank; interest income + fees from loans, deposits and payments.",
+      "Market position: largest private bank by assets; ~1 in 4 Indian households banks with HDFC Bank.",
+      "Key revenue drivers: loan growth, net interest margins (NIMs), CASA deposits and transaction volumes.",
+      "Asset quality: among the lowest GNPA ratios in the Indian banking industry."
+    ],
+    "pros": [
+      "Strongest deposit franchise among private banks (CASA ~36%)",
+      "Post-merger NIM stabilisation unlocking RoA improvement",
+      "Best-in-class asset quality and high provisioning buffer",
+      "Institutional-heavy holding with zero promoter risk"
+    ],
+    "cons": [
+      "Unsecured retail watch-list rising in recent quarters",
+      "Credit growth can be capped by deposit mobilisation",
+      "Merger integration synergies take time to surface"
+    ]
+  },
+  "INFY": {
+    "about": "Infosys is India's second-largest IT services company, offering consulting, technology and outsourcing services worldwide. It has pivoted hard into AI-powered transformation services under its Topaz platform.",
+    "keyPoints": [
+      "Business model: IT services & consulting with global delivery centres.",
+      "Market position: #2 Indian IT exporter; top-5 global IT services brand.",
+      "Key revenue drivers: AI/cloud deals, digital & engineering services (60%+ of revenue).",
+      "Financials: ~$2.5B net cash, strong cash conversion and shareholder-friendly capital returns."
+    ],
+    "pros": [
+      "Net cash balance sheet of ~$2.5B",
+      "AI services (Topaz) gaining large multi-year deals",
+      "Fresh $2B buyback plus 2.4% dividend yield",
+      "Cash conversion ~1.1x of profit"
+    ],
+    "cons": [
+      "Discretionary spend remains soft in banking vertical",
+      "Legacy maintenance revenue declining faster than new wins",
+      "US visa tightening adds wage-cost pressure"
+    ]
+  },
+  "ICICIBANK": {
+    "about": "ICICI Bank is India's largest private bank by market capitalisation after HDFC Bank, with a dominant retail franchise, a strong corporate book and one of the highest RoEs in Indian banking.",
+    "keyPoints": [
+      "Business model: universal bank spanning retail, corporate, SME and wealth.",
+      "Market position: #2 private sector bank with best-in-class return ratios.",
+      "Key revenue drivers: loan growth, fee income, treasury and digital payments.",
+      "RoE trajectory: improving steadily toward 18%+ on better asset quality."
+    ],
+    "pros": [
+      "Highest RoE among large Indian banks (17-18%)",
+      "Strong retail + corporate balance mix",
+      "Digital adoption driving cost-to-income improvement",
+      "Clean asset quality with strong PCR"
+    ],
+    "cons": [
+      "Sensitive to macro rate cycle and credit costs",
+      "Unsecured consumer book needs monitoring",
+      "Intense competition from HDFC Bank and Axis"
+    ]
+  },
+  "HINDUNILVER": {
+    "about": "Hindustan Unilever (HUL) is India's largest FMCG company, home to iconic brands like Surf, Lux, Dove, Lifebuoy, Brooke Bond and Horlicks. It operates across beauty, food, home care and personal care.",
+    "keyPoints": [
+      "Business model: branded consumer goods with pan-India distribution of 2M+ outlets.",
+      "Market position: #1 FMCG company in India by revenue and brand value.",
+      "Key revenue drivers: volume growth, premiumisation, rural recovery and category innovation.",
+      "Financials: high 20s RoE with healthy cash conversion and steady dividend."
+    ],
+    "pros": [
+      "40+ market-leading brands with pricing power",
+      "Wide moat from distribution and brand equity",
+      "Consistently strong cash flow and dividends",
+      "Premiumisation and rural headroom for growth"
+    ],
+    "cons": [
+      "Volume growth has been muted (~2%) in recent years",
+      "Competition from regional and D2C brands rising",
+      "48-50x P/E is expensive relative to growth"
+    ]
+  },
+  "SBIN": {
+    "about": "State Bank of India is the country's largest bank — a government-owned banking behemoth with a fifth of India's deposits, loans and branches, and the backbone of the Indian financial system.",
+    "keyPoints": [
+      "Business model: universal PSU bank with the widest branch network in India.",
+      "Market position: #1 bank by assets, deposits, loans and branch count.",
+      "Key revenue drivers: net interest income, treasury gains and fee income.",
+      "Asset quality: GNPA at a 15-year low with strong provision coverage."
+    ],
+    "pros": [
+      "Sovereign-backed balance sheet (57.6% government holding)",
+      "GNPA at 15-year low of 2.1%",
+      "10x P/E with mid-teens RoE is cheap",
+      "Dominant deposit franchise with pan-India reach"
+    ],
+    "cons": [
+      "Government ownership can invite capital-raise dilution",
+      "CASA ratio under pressure from deposit competition",
+      "Corporate book slippages need monitoring"
+    ]
+  },
+  "BHARTIARTL": {
+    "about": "Bharti Airtel is India's second-largest telecom operator and the largest in Africa, offering mobile, broadband, enterprise and digital services across 17 countries.",
+    "keyPoints": [
+      "Business model: telecom services (mobile, broadband, towers) with ARPU-led monetisation.",
+      "Market position: #2 in India mobile subs, #1 in average revenue per user (ARPU).",
+      "Key revenue drivers: ARPU hikes, 5G adoption, home broadband and Africa data growth.",
+      "Financials: strong OCF (>₹50K Cr) funding spectrum capex and deleveraging."
+    ],
+    "pros": [
+      "Highest ARPU in Indian telecom",
+      "52%+ EBITDA margins with pricing power",
+      "Africa business turning profitable",
+      "Strong cash flow funds deleveraging"
+    ],
+    "cons": [
+      "Regulatory uncertainty (AGR, floor tariffs)",
+      "Spectrum capex keeps 80x+ P/E elevated",
+      "Competitive intensity from Jio"
+    ]
+  },
+  "ITC": {
+    "about": "ITC is a diversified conglomerate with leadership in cigarettes, FMCG (Atta, Aashirvaad, Sunfeast), hotels, paperboards and agri-business — the cigarette-to-staples cash machine of Indian markets.",
+    "keyPoints": [
+      "Business model: high-margin cigarettes funding FMCG, hotels and agri expansion.",
+      "Market position: #1 in Indian cigarettes, top-3 FMCG, largest hotel chain in India.",
+      "Key revenue drivers: cigarette volumes, FMCG staples, hotel occupancy and agri exports.",
+      "Financials: zero debt, 3%+ dividend yield and consistent FCF."
+    ],
+    "pros": [
+      "Zero-debt balance sheet with strong FCF",
+      "Cigarette pricing power with ~40% EBITDA margins",
+      "Steady dividend yield above 3%",
+      "Hotels + FMCG provide growth optionality"
+    ],
+    "cons": [
+      "Cigarette volume growth is structurally low",
+      "FMCG business burns cash on competition",
+      "Regulatory/tax risk on tobacco remains"
+    ]
+  },
+  "LT": {
+    "about": "Larsen & Toubro is India's largest engineering, procurement and construction (EPC) company, building everything from metro systems and power plants to defence warships and digital factories.",
+    "keyPoints": [
+      "Business model: EPC contracting with order-book-driven revenue, plus IT & financial services arms.",
+      "Market position: #1 Indian infrastructure EPC company.",
+      "Key revenue drivers: government infrastructure orders, power & renewables, defence and international projects.",
+      "Financials: record order inflow with improving working-capital and cash-flow discipline."
+    ],
+    "pros": [
+      "Record order book across infra, energy and defence",
+      "Working-capital discipline lifting cash flows",
+      "Diversified portfolio derisks single-segment cycles",
+      "RoE improving toward high-teens"
+    ],
+    "cons": [
+      "P/E of 40x+ prices in the infra super-cycle",
+      "Exposed to government capex slowdown",
+      "EPC execution and margin risk in tenders"
+    ]
+  },
+  "AXISBANK": {
+    "about": "Axis Bank is India's third-largest private sector bank. Its acquisition of Citibank's India consumer business strengthened its credit card, wealth and premium retail franchise.",
+    "keyPoints": [
+      "Business model: private universal bank with strong retail and SME books.",
+      "Market position: #3 private bank; top-3 in credit cards post Citi acquisition.",
+      "Key revenue drivers: retail loan growth, fees, cards and NIMs.",
+      "Financials: 19% RoE with improving asset quality."
+    ],
+    "pros": [
+      "Citi India acquisition adds high-margin premium customers",
+      "Strong cards and wealth franchise",
+      "19% RoE among the best in banking",
+      "Healthy deposit franchise"
+    ],
+    "cons": [
+      "Unsecured retail slippages rising",
+      "NIM compression from deposit competition",
+      "Sensitive to credit cost normalisation"
+    ]
+  },
+  "M&M": {
+    "about": "Mahindra & Mahindra is the world's largest tractor maker by volume and a leading Indian SUV manufacturer, now aggressively investing in electric vehicles through its Born Electric platform.",
+    "keyPoints": [
+      "Business model: farm equipment + auto (SUVs, LCVs) + emerging tech ventures.",
+      "Market position: #1 global tractor maker; top-2 Indian SUV maker.",
+      "Key revenue drivers: SUV cycle, tractor volumes, EV launches and rural economy.",
+      "Financials: strong cash generation with growing RoE."
+    ],
+    "pros": [
+      "World-leading tractor franchise with 40%+ domestic share",
+      "SUV portfolio gaining share in premium segments",
+      "EV push (Born Electric) with committed capex",
+      "Healthy RoE of ~20%"
+    ],
+    "cons": [
+      "EV transition is capital-hungry",
+      "Tractor demand is tied to monsoon and farm economy",
+      "Competition from Tata and Hyundai intensifying"
+    ]
+  },
+  "TATAMOTORS": {
+    "about": "Tata Motors owns Jaguar Land Rover (JLR) and is a leader in Indian commercial vehicles, passenger cars (including the Nexon EV) and defence mobility.",
+    "keyPoints": [
+      "Business model: JLR premium cars (UK) + Tata CVs, PVs and EVs (India).",
+      "Market position: #1 Indian CV maker, top-3 PV maker, leading EV seller in India.",
+      "Key revenue drivers: JLR volumes/mix, CV cycle, Nexon & Curvv PV launches.",
+      "Financials: deleveraging rapidly with strong consolidated cash flow."
+    ],
+    "pros": [
+      "JLR premium mix (Defender/Range Rover) driving margins",
+      "India CV market leadership",
+      "#1 EV seller in India",
+      "8.6x P/E with 45% RoE is inexpensive"
+    ],
+    "cons": [
+      "Global luxury demand and China exposure",
+      "EV economics still under pressure",
+      "Working-capital swings from dealer financing"
+    ]
+  },
+  "TATASTEEL": {
+    "about": "Tata Steel is among the world's most geographically diversified steel producers, with operations in India, Europe and South-East Asia. Its Kalinganagar expansion is central to its Indian growth story.",
+    "keyPoints": [
+      "Business model: integrated steelmaking across India and Europe.",
+      "Market position: #2 Indian steel producer with 21.9 MTPA Indian capacity.",
+      "Key revenue drivers: steel prices, India volumes, Kalinganagar ramp-up.",
+      "Overhang: EU carbon tax (CBAM) on Dutch/UK operations."
+    ],
+    "pros": [
+      "Strong India operations with operating leverage",
+      "De-leveraging on track with solid OCF",
+      "Cheap on book (1.3x) after price correction",
+      "Kalinganagar expansion adds long-term capacity"
+    ],
+    "cons": [
+      "EU carbon tax structurally hurts UK/Netherlands",
+      "Chinese steel dumping keeps prices soft",
+      "Small 2.4% promoter pledge is a governance overhang"
+    ]
+  },
+  "SUNPHARMA": {
+    "about": "Sun Pharmaceutical is India's largest pharmaceutical company and the leading specialty generics player globally, with a growing branded-specialty portfolio in dermatology, ophthalmology and oncology.",
+    "keyPoints": [
+      "Business model: branded generics in India + specialty generics in the US.",
+      "Market position: #1 Indian pharma by domestic market share; top specialty player in US derma.",
+      "Key revenue drivers: US specialty ramp-up, India formulations, global generics.",
+      "Financials: strong FCF and near-zero net debt."
+    ],
+    "pros": [
+      "US specialty growing at double digits with higher margins",
+      "#1 in Indian pharmaceutical market",
+      "Clean balance sheet with no pledge",
+      "Deep R&D pipeline in derma/oncology"
+    ],
+    "cons": [
+      "US price erosion in legacy generics",
+      "39x P/E prices in specialty success",
+      "Plant inspections carry regulatory risk"
+    ]
+  },
+  "TATACONSUM": {
+    "about": "Tata Consumer Products (TCPL) is the consumer-facing arm of the Tata group, with iconic brands Tata Tea, Tetley, Tata Salt and Tata Coffee, now expanding into packaged foods and beverages.",
+    "keyPoints": [
+      "Business model: branded tea, salt, coffee, water and foods.",
+      "Market position: #1 in tea & salt in India; strong international presence.",
+      "Key revenue drivers: volume growth, premium tea/coffee, NourishCo, international business.",
+      "Financials: healthy margins but modest profit growth."
+    ],
+    "pros": [
+      "Strong Tata brand ecosystem",
+      "Leadership in tea and salt",
+      "Zero debt with consistent FCF",
+      "NourishCo scaling beverages"
+    ],
+    "cons": [
+      "77x P/E for only ~2.4% profit growth",
+      "Tea volumes under pressure from competition",
+      "High valuation leaves no margin of safety"
+    ]
+  },
+  "WIPRO": {
+    "about": "Wipro is one of India's original IT services giants, delivering consulting, digital and cloud services globally. It has restructured its business and invested in top-talent hiring under new leadership.",
+    "keyPoints": [
+      "Business model: IT services, consulting and business process services.",
+      "Market position: top-5 Indian IT services company.",
+      "Key revenue drivers: cloud, AI, engineering R&D and global deals.",
+      "Financials: 72.9% promoter holding, strong cash conversion."
+    ],
+    "pros": [
+      "High promoter holding (72.9%) showing confidence",
+      "Strong cash conversion and FCF",
+      "Clean balance sheet",
+      "Turnaround investments under new CEO"
+    ],
+    "cons": [
+      "Growth has lagged TCS and Infosys",
+      "Narrowing moat in commoditised services",
+      "M&A-heavy strategy needs proving"
+    ]
+  },
+  "BAJFINANCE": {
+    "about": "Bajaj Finance is India's largest non-bank finance company (NBFC), offering consumer, SME, auto and mortgage credit, with an unmatched digital-first underwriting engine.",
+    "keyPoints": [
+      "Business model: consumer & SME lending funded by borrowings and deposits.",
+      "Market position: #1 NBFC by market cap with leading consumer finance share.",
+      "Key revenue drivers: AUM growth, fees, cross-sell and credit quality.",
+      "Financials: 29%+ AUM growth with improving margins."
+    ],
+    "pros": [
+      "Superior underwriting track record",
+      "29%+ AUM growth with stable asset quality",
+      "High RoE (~19%) and strong capital",
+      "Digital distribution advantage"
+    ],
+    "cons": [
+      "Funding cost sensitive to rate cycle",
+      "Consumer leverage growth needs watching",
+      "High valuation (31x) leaves little room for error"
+    ]
+  },
+  "ADANIENT": {
+    "about": "Adani Enterprises is the flagship incubator of the Adani group, holding and scaling businesses in airports, green energy, data centres, mining, roads and emerging industries.",
+    "keyPoints": [
+      "Business model: portfolio incubator that builds infrastructure businesses into standalone entities.",
+      "Market position: largest airport operator in India; expanding green energy and data centres.",
+      "Key revenue drivers: airport traffic, green hydrogen, mining and new ventures.",
+      "Overhang: SEBI investigation into related-party disclosures and negative cash flows."
+    ],
+    "pros": [
+      "Airport traffic at record highs",
+      "Green energy and data centre growth optionality",
+      "Diversified infrastructure portfolio",
+      "High promoter skin-in-the-game (75.9%)"
+    ],
+    "cons": [
+      "Operating and free cash flow are negative",
+      "SEBI investigation unresolved",
+      "7.4% promoter pledge with high leverage",
+      "112x P/E with falling profits"
+    ]
+  },
+  "ZOMATO": {
+    "about": "Zomato is India's largest food delivery and quick-commerce company, operating food delivery, dining-out and the Blinkit 10-minute grocery service.",
+    "keyPoints": [
+      "Business model: food delivery take-rate + quick-commerce margins.",
+      "Market position: #1 food delivery (with Swiggy) and #1 quick commerce via Blinkit.",
+      "Key revenue drivers: GOV growth, order frequency, Blinkit store economics.",
+      "Financials: recently turned EBITDA and store-level positive."
+    ],
+    "pros": [
+      "Blinkit achieved store-level profitability",
+      "GOV growing 60%+ year on year",
+      "Food delivery consolidating with better take rates",
+      "Net cash balance sheet"
+    ],
+    "cons": [
+      "412x P/E prices in a decade of perfection",
+      "Discount-burn competition returning",
+      "Founder selling and senior exits create overhang"
+    ]
+  },
+  "PAYTM": {
+    "about": "One97 Communications (Paytm) is India's leading payments and financial services platform, operating the country's largest QR and soundbox ecosystem, with UPI, loans, insurance and wealth distribution.",
+    "keyPoints": [
+      "Business model: payments volume → monetisation via lending, ads and distribution.",
+      "Market position: #1 merchant QR ecosystem; major UPI player.",
+      "Key revenue drivers: payment monetisation, loan distribution, device subscriptions.",
+      "Regulatory overhang: RBI restrictions on its payments bank since 2024."
+    ],
+    "pros": [
+      "UPI TPAP approval restored device onboarding",
+      "Cost controls narrowing losses",
+      "Buyback of ₹1,600 Cr signals confidence",
+      "Huge merchant network to monetise"
+    ],
+    "cons": [
+      "Operating cash flow still negative",
+      "RBI compliance checks create uncertainty",
+      "Intense competition in payments",
+      "Profit quality not yet proven"
+    ]
+  },
+  "HAL": {
+    "about": "Hindustan Aeronautics (HAL) is India's state-owned aerospace monopoly — the design and manufacturing hub for Indian Air Force fighter jets, helicopters and engines, with a record order book.",
+    "keyPoints": [
+      "Business model: design, manufacture and overhaul of military aircraft, helicopters and engines.",
+      "Market position: monopoly Indian aerospace manufacturer; 71.5% government-owned.",
+      "Key revenue drivers: fighter jet deliveries (Tejas), helicopter orders, engine overhaul and spares.",
+      "Financials: 27% RoE, near-zero debt and decade-like order visibility."
+    ],
+    "pros": [
+      "Order book of ₹94,000 Cr (≈4x revenue)",
+      "Monopoly position in Indian aerospace",
+      "27% RoE with zero leverage",
+      "97 Tejas Mk-1A order confirms ramp-up"
+    ],
+    "cons": [
+      "Delivery slips can delay revenue recognition",
+      "38x P/E leaves little room for misses",
+      "Working-capital needs of scaling production"
+    ]
+  },
+  "IRCTC": {
+    "about": "Indian Railway Catering and Tourism Corporation (IRCTC) is a government-owned monopoly that runs online railway ticketing for Indian Railways, along with catering, tourism and rail-themed content services.",
+    "keyPoints": [
+      "Business model: transaction fee on railway bookings + catering + tourism packages.",
+      "Market position: sole online ticket platform for Indian Railways.",
+      "Key revenue drivers: ticketing volumes, catering margins, tourism and non-railway revenue.",
+      "Financials: zero debt, ~38% EBITDA margins and strong cash generation."
+    ],
+    "pros": [
+      "Monopoly ticketing platform with zero competition",
+      "Zero debt and high margins",
+      "Rising railway passenger volumes",
+      "Government backing (62.4% holding)"
+    ],
+    "cons": [
+      "68x P/E leaves little margin of safety",
+      "Pricing regulated by the government",
+      "Revenue concentration in rail ecosystem"
+    ]
+  },
+  "JIOFIN": {
+    "about": "Jio Financial Services is the Reliance group's financial services arm, aiming to combine Jio's massive customer base with lending, insurance, payments and asset management.",
+    "keyPoints": [
+      "Business model: lending, payments, insurance distribution and wealth for Jio's 450M+ customers.",
+      "Market position: early-stage NBFC backed by Reliance's digital ecosystem.",
+      "Key revenue drivers: loan book build-up, distribution fees and group synergies.",
+      "Financials: strong capital, low ROE at this stage."
+    ],
+    "pros": [
+      "Access to 450M+ Jio customers",
+      "Clean balance sheet with no debt",
+      "Reliance ecosystem distribution advantage",
+      "Regulatory approvals across payments/insurance"
+    ],
+    "cons": [
+      "ROE of just 3% — earnings power unproven",
+      "102x P/E on current profits",
+      "Group-related transactions under watch",
+      "Lending book still very small"
+    ]
+  },
+  "DMART": {
+    "about": "Avenue Supermarts (DMart) runs one of India's most efficient hypermarket retail chains, focused on everyday low prices, high inventory turns and largely owned real estate.",
+    "keyPoints": [
+      "Business model: discount hypermarket retail with low-margin, high-volume economics.",
+      "Market position: among India's most profitable large-format retailers.",
+      "Key revenue drivers: store expansion, same-store sales growth and private labels.",
+      "Financials: zero debt, 18% RoE and very strong cash conversion."
+    ],
+    "pros": [
+      "Zero-debt, asset-light-in-operation retail model",
+      "Highest margins among Indian retailers",
+      "Owned real estate provides cost moat",
+      "Consistent store expansion pipeline"
+    ],
+    "cons": [
+      "96x P/E with modest growth = very expensive",
+      "Online commerce threat over the long run",
+      "Growth is a function of store adds, not leverage"
+    ]
+  },
+  "BSE": {
+    "about": "BSE Limited (Bombay Stock Exchange) is Asia's oldest stock exchange and India's #1 exchange in derivatives volumes and SME listings, earning transaction fees on every trade it facilitates.",
+    "keyPoints": [
+      "Business model: exchange transaction fees, listing fees, data and colocation services.",
+      "Market position: #1 in index derivatives; dominant SME exchange.",
+      "Key revenue drivers: derivative volumes, cash-market volumes, listing pipeline.",
+      "Financials: 40%+ EBITDA margins with a near-monopoly moat."
+    ],
+    "pros": [
+      "Exchange duopoly moat with 40%+ margins",
+      "Derivatives volume growth driving revenue",
+      "Healthy cash flow and dividend",
+      "Market-cap-linked revenue scales with markets"
+    ],
+    "cons": [
+      "Revenues are cyclical — tied to market volumes",
+      "High retail speculation in derivatives is a risk",
+      "P/E of 39x could de-rate in a slow market"
+    ]
+  },
+  "VBL": {
+    "about": "Varun Beverages (VBL) is the largest PepsiCo franchise bottler in the world outside the US, manufacturing and distributing PepsiCo brands across India, Africa and South-East Asia.",
+    "keyPoints": [
+      "Business model: franchised bottling of carbonated soft drinks and juices.",
+      "Market position: #1 PepsiCo franchisee globally by volume; top-2 beverage player in India.",
+      "Key revenue drivers: volume growth, new markets (Africa), capacity expansion.",
+      "Financials: 32% RoCE/RoE with strong volume-led growth."
+    ],
+    "pros": [
+      "PepsiCo franchise moat with huge distribution",
+      "32% RoE with double-digit volume growth",
+      "Africa expansion adds a new growth engine",
+      "Strong capacity-utilisation-led operating leverage"
+    ],
+    "cons": [
+      "78x P/E prices in a decade of growth",
+      "Capex-heavy expansion compresses FCF",
+      "Monsoon/heat dependent demand swings"
+    ]
+  }
+}

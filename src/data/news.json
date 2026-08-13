@@ -1,0 +1,334 @@
+{
+  "RELIANCE": [
+    {
+      "id": "n1",
+      "time": "2m ago",
+      "title": "Reliance Retail clocks 42% jump in Q4 digital commerce orders",
+      "source": "Economic Times",
+      "sentiment": "positive",
+      "tags": ["Business", "Retail"]
+    },
+    {
+      "id": "n2",
+      "time": "18m ago",
+      "title": "Jio aims to double 5G subscriber base by FY26-end, says Chairman",
+      "source": "Business Standard",
+      "sentiment": "positive",
+      "tags": ["Telecom"]
+    },
+    {
+      "id": "n3",
+      "time": "41m ago",
+      "title": "Reliance to invest $2B in green hydrogen electrolyser manufacturing",
+      "source": "Reuters",
+      "sentiment": "positive",
+      "tags": ["Energy", "Green"]
+    },
+    {
+      "id": "n4",
+      "time": "1h ago",
+      "title": "Oil-to-telecom major faces margin pressure in O2C segment",
+      "source": "Mint",
+      "sentiment": "negative",
+      "tags": ["Margins"]
+    },
+    {
+      "id": "n5",
+      "time": "3h ago",
+      "title": "FIIs trim stake in Reliance Industries for second straight quarter",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["FII", "Holding"]
+    },
+    {
+      "id": "n6",
+      "time": "5h ago",
+      "title": "Analysts raise target price after robust retail & digital momentum",
+      "source": "ET Markets",
+      "sentiment": "positive",
+      "tags": ["Analyst"]
+    }
+  ],
+  "TCS": [
+    {
+      "id": "t1",
+      "time": "5m ago",
+      "title": "TCS wins $1.4B outsourcing deal from European airline group",
+      "source": "Reuters",
+      "sentiment": "positive",
+      "tags": ["Deal Win"]
+    },
+    {
+      "id": "t2",
+      "time": "32m ago",
+      "title": "Attrition inches down to 12.2% as IT hiring stabilises",
+      "source": "ET Markets",
+      "sentiment": "positive",
+      "tags": ["Hiring"]
+    },
+    {
+      "id": "t3",
+      "time": "1h ago",
+      "title": "TCS announces interim dividend of Rs 10 per share",
+      "source": "BSE Filings",
+      "sentiment": "neutral",
+      "tags": ["Dividend"]
+    },
+    {
+      "id": "t4",
+      "time": "4h ago",
+      "title": "Banking vertical growth slowest; commentary stays cautious",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["Earnings"]
+    }
+  ],
+  "HDFCBANK": [
+    {
+      "id": "h1",
+      "time": "8m ago",
+      "title": "HDFC Bank deposits grow 16% YoY, CASA ratio improves",
+      "source": "Business Standard",
+      "sentiment": "positive",
+      "tags": ["Deposits"]
+    },
+    {
+      "id": "h2",
+      "time": "26m ago",
+      "title": "HDFC Bank raises MCLR by 10 bps across tenors",
+      "source": "ET Markets",
+      "sentiment": "neutral",
+      "tags": ["Rates"]
+    },
+    {
+      "id": "h3",
+      "time": "1h ago",
+      "title": "NIMs expected to stabilise in Q2 as deposit repricing completes",
+      "source": "Kotak Research",
+      "sentiment": "positive",
+      "tags": ["NIM"]
+    },
+    {
+      "id": "h4",
+      "time": "3h ago",
+      "title": "Analyst flag: unsecured retail book watch-list rising",
+      "source": "Mint",
+      "sentiment": "negative",
+      "tags": ["Asset Quality"]
+    }
+  ],
+  "INFY": [
+    {
+      "id": "i1",
+      "time": "4m ago",
+      "title": "Infosys announces $2B buyback; share price jumps 2%",
+      "source": "CNBC TV18",
+      "sentiment": "positive",
+      "tags": ["Buyback"]
+    },
+    {
+      "id": "i2",
+      "time": "22m ago",
+      "title": "Infosys signs $750M AI modernization deal with UK insurer",
+      "source": "Reuters",
+      "sentiment": "positive",
+      "tags": ["AI", "Deal"]
+    },
+    {
+      "id": "i3",
+      "time": "2h ago",
+      "title": "Digital & cloud revenue share crosses 60% of total",
+      "source": "ET Markets",
+      "sentiment": "positive",
+      "tags": ["Digital"]
+    },
+    {
+      "id": "i4",
+      "time": "6h ago",
+      "title": "Tightening visa policies may add wage pressure in US",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["Costs"]
+    }
+  ],
+  "ZOMATO": [
+    {
+      "id": "z1",
+      "time": "3m ago",
+      "title": "Zomato Blinkit delivers first profitable quarter at store level",
+      "source": "ET Markets",
+      "sentiment": "positive",
+      "tags": ["Blinkit"]
+    },
+    {
+      "id": "z2",
+      "time": "15m ago",
+      "title": "Zomato announces it will stop '10-minute delivery' in 12 cities",
+      "source": "Mint",
+      "sentiment": "neutral",
+      "tags": ["Regulatory"]
+    },
+    {
+      "id": "z3",
+      "time": "1h ago",
+      "title": "Quick-commerce competition heats up; discount burn returns",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["Competition"]
+    },
+    {
+      "id": "z4",
+      "time": "4h ago",
+      "title": "GOV growth beats street estimates on higher order frequency",
+      "source": "Kotak Research",
+      "sentiment": "positive",
+      "tags": ["GOV"]
+    }
+  ],
+  "SBIN": [
+    {
+      "id": "s1",
+      "time": "6m ago",
+      "title": "SBI Q4 net profit jumps 24% on lower provisions",
+      "source": "Economic Times",
+      "sentiment": "positive",
+      "tags": ["Results"]
+    },
+    {
+      "id": "s2",
+      "time": "40m ago",
+      "title": "SBI plans Rs 20,000 Cr capital raise via AT1 bonds",
+      "source": "Reuters",
+      "sentiment": "neutral",
+      "tags": ["Capital"]
+    },
+    {
+      "id": "s3",
+      "time": "2h ago",
+      "title": "GNPA drops to 15-year low of 2.1%",
+      "source": "CNBC TV18",
+      "sentiment": "positive",
+      "tags": ["Asset Quality"]
+    }
+  ],
+  "HAL": [
+    {
+      "id": "hal1",
+      "time": "2m ago",
+      "title": "HAL secures Rs 27,000 Cr order for 97 Tejas Mk-1A jets",
+      "source": "Economic Times",
+      "sentiment": "positive",
+      "tags": ["Defence", "Orders"]
+    },
+    {
+      "id": "hal2",
+      "time": "1h ago",
+      "title": "Order book at all-time high of Rs 94,000 Cr",
+      "source": "CNBC TV18",
+      "sentiment": "positive",
+      "tags": ["Order Book"]
+    },
+    {
+      "id": "hal3",
+      "time": "5h ago",
+      "title": "Margin watch: spares segment growth slower than engines",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["Margins"]
+    }
+  ],
+  "TATASTEEL": [
+    {
+      "id": "ts1",
+      "time": "9m ago",
+      "title": "Tata Steel warns of EU carbon tax hit on Dutch operations",
+      "source": "Reuters",
+      "sentiment": "negative",
+      "tags": ["CBAM"]
+    },
+    {
+      "id": "ts2",
+      "time": "2h ago",
+      "title": "Steel prices stay soft; domestic spread remains under pressure",
+      "source": "Business Standard",
+      "sentiment": "negative",
+      "tags": ["Steel Prices"]
+    },
+    {
+      "id": "ts3",
+      "time": "6h ago",
+      "title": "Tata Steel raises long-term capex plan for Kalinganagar plant",
+      "source": "ET Markets",
+      "sentiment": "positive",
+      "tags": ["Capex"]
+    }
+  ],
+  "ADANIENT": [
+    {
+      "id": "ad1",
+      "time": "5m ago",
+      "title": "Adani Enterprises board to consider QIP; stock in focus",
+      "source": "CNBC TV18",
+      "sentiment": "neutral",
+      "tags": ["QIP"]
+    },
+    {
+      "id": "ad2",
+      "time": "45m ago",
+      "title": "SEBI probe continues over related-party disclosures",
+      "source": "Reuters",
+      "sentiment": "negative",
+      "tags": ["SEBI"]
+    },
+    {
+      "id": "ad3",
+      "time": "3h ago",
+      "title": "Airport division posts record passenger traffic in June",
+      "source": "Mint",
+      "sentiment": "positive",
+      "tags": ["Airports"]
+    },
+    {
+      "id": "ad4",
+      "time": "8h ago",
+      "title": "Promoter pledge on group entities rises to 7.4%",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["Pledge"]
+    }
+  ],
+  "PAYTM": [
+    {
+      "id": "p1",
+      "time": "4m ago",
+      "title": "Paytm receives UPI TPAP approval; new device onboarding to resume",
+      "source": "Economic Times",
+      "sentiment": "positive",
+      "tags": ["UPI"]
+    },
+    {
+      "id": "p2",
+      "time": "28m ago",
+      "title": "Q4 revenue up 22% but losses narrow slower than expected",
+      "source": "Moneycontrol",
+      "sentiment": "negative",
+      "tags": ["Results"]
+    },
+    {
+      "id": "p3",
+      "time": "2h ago",
+      "title": "RBI imposes fresh compliance checks on payments unit",
+      "source": "Reuters",
+      "sentiment": "negative",
+      "tags": ["RBI"]
+    },
+    {
+      "id": "p4",
+      "time": "7h ago",
+      "title": "Board clears buyback of up to Rs 1,600 Cr",
+      "source": "BSE Filings",
+      "sentiment": "positive",
+      "tags": ["Buyback"]
+    }
+  ]
+}

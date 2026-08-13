@@ -1,0 +1,254 @@
+{
+  "RELIANCE": {
+    "conviction": {
+      "score": 76,
+      "label": "Strong Bullish",
+      "thesis": "RIL remains India's largest earnings compounder with optionality across telecom, retail and new energy.",
+      "reasons": [
+        "Record Jio EBITDA with ARPU uptick signals pricing power and tariff-cycle gains flowing through.",
+        "Retail scaling digital commerce with 42% order growth and expanding store footprint.",
+        "New-energy vertical (solar, electrolysers, batteries) is a decade-long growth runway backed by $100B+ capex plan.",
+        "Zero promoter pledge and clean balance sheet allow debt-funded growth without shareholder dilution risk."
+      ],
+      "risks": [
+        "O2C refining margins remain cyclical and weigh on consolidated margins.",
+        "FII stake trimming in recent quarters adds near-term supply pressure.",
+        "New-energy returns may take longer than market expects to become material."
+      ]
+    }
+  },
+  "TCS": {
+    "conviction": {
+      "score": 72,
+      "label": "Bullish",
+      "thesis": "TCS offers best-in-class margin and cash-flow quality with a wide moat, though growth is cyclical.",
+      "reasons": [
+        "Deal TCV remains strong ($10B+/quarter) with AI modernization contracts accelerating.",
+        "Attrition easing and utilization improving supports margin expansion runway.",
+        "48.6% RoE with ~100% dividend/buyback payout is shareholder-friendly.",
+        "Order pipeline from BFSI recovery and cloud migration is building."
+      ],
+      "risks": [
+        "IT spending cycles could stay soft in discretionary segments.",
+        "28x P/E leaves little room for earnings disappointment.",
+        "Wage inflation and AI-driven pricing pressure in commoditised work."
+      ]
+    }
+  },
+  "HDFCBANK": {
+    "conviction": {
+      "score": 80,
+      "label": "Strong Bullish",
+      "thesis": "Post-merger integration is nearly complete; the franchise is compounding deposits and loans with improving NIMs.",
+      "reasons": [
+        "Deposit growth of 16% YoY and CASA normalizing post-merger.",
+        "NIM expected to stabilize as high-cost deposit repricing rolls off by Q3.",
+        "Asset quality remains among the best in Indian banking despite scale.",
+        "Institutional-heavy holding base and zero promoter risk add governance comfort."
+      ],
+      "risks": [
+        "Unsecured retail watch-list rising needs monitoring.",
+        "Merger-related cost synergies may take longer to reflect in RoA.",
+        "Liquidity coverage ratio discipline can cap aggressive credit growth."
+      ]
+    }
+  },
+  "INFY": {
+    "conviction": {
+      "score": 70,
+      "label": "Bullish",
+      "thesis": "Infosys pairs a fortress balance sheet with an improving AI-services pipeline and a fresh $2B buyback.",
+      "reasons": [
+        "Large AI-focused deals signal willingness to pay for transformation.",
+        "Digital & cloud now over 60% of revenue with better margins.",
+        "$2B buyback plus 2.4% dividend yield supports the stock.",
+        "Cash conversion ~1.1x of profit with net cash of ~$2.5B."
+      ],
+      "risks": [
+        "Legacy application maintenance revenue shrinking faster than new wins.",
+        "Visa policy tightening adds wage cost pressure in the US.",
+        "Euro/US demand softness in banking vertical."
+      ]
+    }
+  },
+  "ZOMATO": {
+    "conviction": {
+      "score": 58,
+      "label": "Neutral",
+      "thesis": "Blinkit is scaling impressively but valuation embeds years of perfection; quality of earnings needs watching.",
+      "reasons": [
+        "Blinkit turned store-level profitable for the first time, validating the quick-commerce model.",
+        "GOV growth of 64% is real and backed by store expansion and order frequency.",
+        "Food delivery is consolidating with improved take rates.",
+        "Net cash balance sheet provides optionality for expansion."
+      ],
+      "risks": [
+        "Competitive discount burn returning in quick commerce.",
+        "412x P/E prices in a decade of flawless execution.",
+        "Founder selling and senior exits create sentiment overhang."
+      ]
+    }
+  },
+  "SBIN": {
+    "conviction": {
+      "score": 74,
+      "label": "Bullish",
+      "thesis": "The largest PSU bank is delivering a clean asset-quality cycle with compelling value at 1.7x book.",
+      "reasons": [
+        "GNPA at a 15-year low of 2.1% with strong provisioning buffer.",
+        "Profit growth of 24% on lower credit costs is sustainable for another year.",
+        "Deposit franchise and sovereign backing give structural stability.",
+        "10.2x P/E is inexpensive versus mid-teen RoE trajectory."
+      ],
+      "risks": [
+        "Rates cycle and credit cost normalisation could slow profit growth.",
+        "CASA ratio pressure from competition for deposits.",
+        "Government ownership can invite capital-raise dilution risk."
+      ]
+    }
+  },
+  "TATASTEEL": {
+    "conviction": {
+      "score": 42,
+      "label": "Neutral",
+      "thesis": "Steel cycle remains soft in Europe; the EU carbon-tax overhang caps re-rating despite India strength.",
+      "reasons": [
+        "Indian operations are healthy with strong operating leverage at Kalinganagar.",
+        "Tata Steel UK faces structural cost issues and CBAM-related charges.",
+        "Balance sheet de-leveraging is on track with strong consolidated OCF.",
+        "Stock at 1.3x book reflects the cyclical pessimism already priced."
+      ],
+      "risks": [
+        "EU carbon tax could structurally impair the Dutch/UK business.",
+        "Chinese export dumping pressure on steel prices.",
+        "2.4% promoter pledge is a small but real governance overhang."
+      ]
+    }
+  },
+  "HAL": {
+    "conviction": {
+      "score": 78,
+      "label": "Strong Bullish",
+      "thesis": "Defence indigenisation is a multi-decade theme and HAL is the monopoly beneficiary with an all-time-high order book.",
+      "reasons": [
+        "Order book of Rs 94,000 Cr (~4x revenue) provides decade-like revenue visibility.",
+        "97 Tejas Mk-1A order confirms the fighter-jet production ramp.",
+        "Strong RoE of 27.4% with near-zero leverage.",
+        "Government holding 71.5% makes it immune to promoter risk."
+      ],
+      "risks": [
+        "Deliveries and revenue recognition can slip on certification delays.",
+        "38.6x P/E leaves little room for execution misses.",
+        "Capex and working-capital needs of scaling production."
+      ]
+    }
+  },
+  "PAYTM": {
+    "conviction": {
+      "score": 34,
+      "label": "Bearish",
+      "thesis": "Recovery is real but slow, and regulatory risk keeps a lid on the re-rating until compliance stabilises.",
+      "reasons": [
+        "UPI TPAP approval restores device onboarding and payments momentum.",
+        "Cost controls are narrowing losses faster than earlier guidance.",
+        "Buyback of Rs 1,600 Cr signals management confidence.",
+        "RBI compliance checks add an unpredictable regulatory variable."
+      ],
+      "risks": [
+        "OCF remains negative; profit quality is not yet proven.",
+        "Fresh RBI compliance scrutiny could delay the payments recovery.",
+        "Competition from aggressive UPI aggregators caps monetisation."
+      ]
+    }
+  },
+  "ADANIENT": {
+    "conviction": {
+      "score": 28,
+      "label": "Bearish",
+      "thesis": "The portfolio grows, but cash-flow quality, pledge and governance scrutiny make it a high-risk speculative position.",
+      "reasons": [
+        "New-energy and airports verticals are scaling with real traffic/order growth.",
+        "Group diversification lowers single-segment concentration risk.",
+        "OCF and FCF are negative while reported profits grow - a cash-quality red flag.",
+        "Ongoing SEBI investigation and related-party disclosures cap institutional appetite."
+      ],
+      "risks": [
+        "Negative operating cash flow funds growth through debt.",
+        "SEBI investigation outcome is binary and unpredictable.",
+        "Promoter pledge of 7.4% increases leverage sensitivity."
+      ]
+    }
+  },
+  "TATAMOTORS": {
+    "conviction": {
+      "score": 75,
+      "label": "Bullish",
+      "thesis": "JLR's premium cycle plus India CV leadership create a strong earnings engine at an undemanding multiple.",
+      "reasons": [
+        "JLR order book remains strong with healthy mix of Range Rover and Defender.",
+        "India CV market share gains and PV (Punch/Curvv) success broaden the base.",
+        "OCF of Rs 56,800 Cr funds deleveraging and EV capex.",
+        "8.6x P/E with 45% RoE is inexpensive for this growth."
+      ],
+      "risks": [
+        "Global luxury demand and China weakness could hit JLR volumes.",
+        "EV transition in India is slower than company guidance.",
+        "Working-capital swings on dealer financing."
+      ]
+    }
+  },
+  "BHARTIARTL": {
+    "conviction": {
+      "score": 73,
+      "label": "Bullish",
+      "thesis": "ARPU-led growth, spectrum investment cycle payoff and deleveraging make Airtel a quality telecom compounder.",
+      "reasons": [
+        "ARPU uptrend from tariff hikes flows almost entirely to EBITDA margin.",
+        "Mobile subscriber net adds positive after a long stagnation.",
+        "Africa operations turning profitable with data mix improving.",
+        "OCF of Rs 52,700 Cr comfortably covers capex and debt service."
+      ],
+      "risks": [
+        "Regulatory uncertainty around floor tariffs and AGR.",
+        "87x P/E reflects elevated spectrum-capex cycle expectations.",
+        "Reliance Jio competitive intensity on pricing."
+      ]
+    }
+  },
+  "LT": {
+    "conviction": {
+      "score": 71,
+      "label": "Bullish",
+      "thesis": "The infra order super-cycle and working-capital discipline position L&T for margin-accretive growth.",
+      "reasons": [
+        "Order inflow at record pace across infrastructure, energy and defence.",
+        "Working-capital days normalised, lifting OCF and FCF quality.",
+        "RoE improving toward mid-to-high teens on capital efficiency.",
+        "Diversified order book derisks single-segment cycles."
+      ],
+      "risks": [
+        "Public capex slowdown if government spending tightens.",
+        "42.8x P/E is expensive; any order-book hiccup hurts.",
+        "Competitive pricing pressure in EPC tenders."
+      ]
+    }
+  },
+  "SUNPHARMA": {
+    "conviction": {
+      "score": 72,
+      "label": "Bullish",
+      "thesis": "Specialty ramp-up in the US plus India branded-generics leadership support durable mid-teens growth.",
+      "reasons": [
+        "Specialty products growing at double digits with higher margins.",
+        "India formulations business leads the domestic market.",
+        "Healthy OCF and positive FCF fund R&D without leverage.",
+        "No governance overhangs; clean promoter record."
+      ],
+      "risks": [
+        "US price erosion in legacy generics portfolio.",
+        "39x P/E prices in specialty success.",
+        "Regulatory plant inspections could disrupt supply."
+      ]
+    }
+  }
+}
