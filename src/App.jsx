@@ -13,25 +13,21 @@ import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route
-          path="/stock/:id"
-          element={
-            <ErrorBoundary>
-              <StockDetail />
-            </ErrorBoundary>
-          }
-        />
-        <Route path="/index/:id" element={<IndexView />} />
-        <Route path="/screener" element={<Screener />} />
-        <Route path="/ipos" element={<IPOs />} />
-        <Route path="/premium" element={<PremiumInsights />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+    // Poori website ko Safety Net (ErrorBoundary) me daal diya
+    <ErrorBoundary>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="/stock/:id" element={<StockDetail />} />
+          <Route path="/index/:id" element={<IndexView />} />
+          <Route path="/screener" element={<Screener />} />
+          <Route path="/ipos" element={<IPOs />} />
+          <Route path="/premium" element={<PremiumInsights />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </ErrorBoundary>
   )
 }
