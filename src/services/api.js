@@ -23,6 +23,8 @@ import {
 } from './derivations'
 import { seededRand } from '../utils/random'
 
+// Vercel ke locker se FMP API Key yahan connect hogi
+const FMP_KEY = import.meta.env.VITE_FMP_API_KEY
 const API_LATENCY = 120
 
 function getStockRow(id) {
@@ -133,7 +135,6 @@ export async function getCandles(id) {
   try {
     const stock = getStockRow(id)
     if (!stock) return []
-    if (id === 'RELIANCE') return relianceDetail.candles
     return deriveCandles(stock)
   } catch {
     return []
@@ -145,7 +146,6 @@ export async function getTechnicalIndicators(id) {
   try {
     const stock = getStockRow(id)
     if (!stock) return null
-    if (id === 'RELIANCE') return relianceDetail.technical
     return deriveTechnical(stock)
   } catch {
     return null
@@ -157,7 +157,6 @@ export async function getFinancialStatements(id) {
   try {
     const stock = getStockRow(id)
     if (!stock) return null
-    if (id === 'RELIANCE') return relianceDetail.financials
     const balanceSheet = deriveBalanceSheet(stock)
     return {
       quarterly: deriveQuarterlyDetailed(stock),
@@ -177,7 +176,6 @@ export async function getShareholderAnalytics(id) {
   try {
     const stock = getStockRow(id)
     if (!stock) return null
-    if (id === 'RELIANCE') return relianceDetail.shareholderData
     return {
       shareholders: deriveShareholders(stock),
       holdings: deriveHoldings(stock, 6),
@@ -193,7 +191,6 @@ export async function getCorporateDocuments(id) {
   try {
     const stock = getStockRow(id)
     if (!stock) return null
-    if (id === 'RELIANCE') return relianceDetail.documents
     return deriveDocuments(stock)
   } catch {
     return null
@@ -236,10 +233,35 @@ const FALLBACK_CONVICTION = {
 
 export async function getStockDetail(id) {
   await delay(150)
-  if (id === 'RELIANCE') return relianceDetail
   try {
-    const stock = getStockRow(id)
+    let stock = getStockRow(id)
     if (!stock) return null
+
+    // --- ASLI API SE LIVE DATA LAANE KA CODE ---
+    if (FMP_KEY) {
+      try {
+        // NSE stocks ke aage .NS lagta hai FMP API me
+        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${id}.NS?apikey=${FMP_KEY}`)
+        const data = await res.json()
+        if (data && data.length > 0) {
+          const live = data[0]
+          stock = {
+            ...stock,
+            price: live.price,
+            change: live.change,
+            changePct: live.changesPercentage,
+            marketCap: live.marketCap / 10000000, // Cr me convert kiya
+            fiftyTwoWHigh: live.yearHigh,
+            fiftyTwoWLow: live.yearLow,
+            volume: live.volume
+          }
+        }
+      } catch (e) {
+        console.log("Live API failed, using fallback mock data")
+      }
+    }
+    // ------------------------------------------
+
     const redFlagResults = getRedFlagResults(id)
     const conviction = safe(() => deriveConviction(stock, redFlagResults || []), FALLBACK_CONVICTION)
     const profile = stockProfiles[id] || {
