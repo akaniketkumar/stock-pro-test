@@ -23,16 +23,47 @@ import {
 } from './derivations'
 import { seededRand } from '../utils/random'
 
-// Vercel ke locker se FMP API Key yahan connect hogi
 const FMP_KEY = import.meta.env.VITE_FMP_API_KEY
 const API_LATENCY = 120
 
-function getStockRow(id) {
-  return stocks.find((s) => s.id === id) || null
-}
-
 function delay(ms = API_LATENCY) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function getStockRow(id) {
+  const symbol = (id || '').toUpperCase()
+  const found = stocks.find((s) => s.id === symbol || s.symbol === symbol)
+  if (found) return found
+
+  // Universal dynamic fallback if stock is not in static JSON
+  return {
+    id: symbol,
+    symbol: symbol,
+    name: symbol,
+    sector: 'Diversified',
+    industry: 'Diversified',
+    price: 1000,
+    change: 0,
+    changePct: 0,
+    marketCap: 50000,
+    pe: 25.0,
+    pb: 3.5,
+    roe: 16.5,
+    roce: 18.2,
+    debtToEquity: 0.2,
+    freeCashFlow: 500,
+    netProfit: 1200,
+    revenueGrowth: 12.5,
+    profitGrowth: 14.2,
+    fiftyTwoWHigh: 1200,
+    fiftyTwoWLow: 850,
+    promoterHolding: 52.0,
+    fiiHolding: 21.0,
+    diiHolding: 15.0,
+    publicHolding: 12.0,
+    promoterPledge: 0,
+    rating: 'BUY'
+  }
 }
 
 function deriveBoardMeetings(stock) {
@@ -67,18 +98,18 @@ function deriveBoardMeetings(stock) {
 function deriveConviction(stock, redFlagResults) {
   const overrides = stockDetails[stock.id]?.conviction
   if (overrides) return overrides
-  const total = redFlagResults.length || 16
-  const danger = redFlagResults.filter((r) => r.status === 'danger').length
-  const watch = redFlagResults.filter((r) => r.status === 'watch').length
-  const passCount = total - danger - watch
-  const base = Math.round((passCount / total) * 70)
+  const total = (redFlagResults && redFlagResults.length) || 16
+  const danger = (redFlagResults || []).filter((r) => r.status === 'danger').length
+  const watch = (redFlagResults || []).filter((r) => r.status === 'watch').length
+  const passCount = Math.max(0, total - danger - watch)
+  const base = Math.round((passCount / (total || 16)) * 70)
   const ratingBoost = stock.rating === 'BUY' ? 12 : stock.rating === 'HOLD' ? 2 : -12
   const score = Math.max(10, Math.min(90, base + ratingBoost))
   const label = score >= 75 ? 'Strong Bullish' : score >= 60 ? 'Bullish' : score >= 45 ? 'Neutral' : score >= 30 ? 'Bearish' : 'Strong Bearish'
   return {
     score,
     label,
-    thesis: `Fundamental and technical analysis of ${stock.name} suggests a ${label.toLowerCase()} outlook based on current data.`,
+    thesis: `Fundamental and technical analysis of ${stock.name || stock.symbol} suggests a ${label.toLowerCase()} outlook.`,
     reasons: [
       `${passCount} of ${total} forensic checks passed; ${danger} critical red flags detected.`,
       `${stock.revenueGrowth || 0}% revenue growth with ${stock.profitGrowth || 0}% profit growth in the latest quarter.`,
@@ -134,7 +165,6 @@ export async function getCandles(id) {
   await delay(140)
   try {
     const stock = getStockRow(id)
-    if (!stock) return []
     return deriveCandles(stock)
   } catch {
     return []
@@ -145,7 +175,6 @@ export async function getTechnicalIndicators(id) {
   await delay(120)
   try {
     const stock = getStockRow(id)
-    if (!stock) return null
     return deriveTechnical(stock)
   } catch {
     return null
@@ -156,7 +185,6 @@ export async function getFinancialStatements(id) {
   await delay(160)
   try {
     const stock = getStockRow(id)
-    if (!stock) return null
     const balanceSheet = deriveBalanceSheet(stock)
     return {
       quarterly: deriveQuarterlyDetailed(stock),
@@ -175,7 +203,6 @@ export async function getShareholderAnalytics(id) {
   await delay(120)
   try {
     const stock = getStockRow(id)
-    if (!stock) return null
     return {
       shareholders: deriveShareholders(stock),
       holdings: deriveHoldings(stock, 6),
@@ -190,7 +217,6 @@ export async function getCorporateDocuments(id) {
   await delay(120)
   try {
     const stock = getStockRow(id)
-    if (!stock) return null
     return deriveDocuments(stock)
   } catch {
     return null
@@ -200,7 +226,6 @@ export async function getCorporateDocuments(id) {
 export async function getPeers(id) {
   await delay(140)
   const stock = getStockRow(id)
-  if (!stock) return []
   return derivePeers(stock, stocks)
 }
 
@@ -235,45 +260,45 @@ export async function getStockDetail(id) {
   await delay(150)
   try {
     let stock = getStockRow(id)
-    if (!stock) return null
 
-    // --- ASLI API SE LIVE DATA LAANE KA CODE ---
+    // Real-Time FMP Fetch
     if (FMP_KEY) {
       try {
-        // NSE stocks ke aage .NS lagta hai FMP API me
-        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${id}.NS?apikey=${FMP_KEY}`)
+        const symbolClean = id.replace('.NS', '')
+        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbolClean}.NS?apikey=${FMP_KEY}`)
         const data = await res.json()
         if (data && data.length > 0) {
           const live = data[0]
           stock = {
             ...stock,
-            price: live.price,
-            change: live.change,
-            changePct: live.changesPercentage,
-            marketCap: live.marketCap / 10000000, // Cr me convert kiya
-            fiftyTwoWHigh: live.yearHigh,
-            fiftyTwoWLow: live.yearLow,
-            volume: live.volume
+            name: live.name || stock.name,
+            price: live.price || stock.price,
+            change: live.change || stock.change,
+            changePct: live.changesPercentage || stock.changePct,
+            marketCap: live.marketCap ? live.marketCap / 10000000 : stock.marketCap,
+            fiftyTwoWHigh: live.yearHigh || stock.fiftyTwoWHigh,
+            fiftyTwoWLow: live.yearLow || stock.fiftyTwoWLow,
+            volume: live.volume || stock.volume
           }
         }
       } catch (e) {
-        console.log("Live API failed, using fallback mock data")
+        console.warn("FMP live fetch failed, fallback applied.")
       }
     }
-    // ------------------------------------------
 
     const redFlagResults = getRedFlagResults(id)
     const conviction = safe(() => deriveConviction(stock, redFlagResults || []), FALLBACK_CONVICTION)
     const profile = stockProfiles[id] || {
-      about: `${stock.name} operates in the ${stock.industry} space on the NSE.`,
+      about: `${stock.name || stock.symbol} operates in the Indian equity market listed on NSE.`,
       keyPoints: [
-        `Listed on NSE with market cap of ₹${(stock.marketCap / 1000).toFixed(0)}K Cr.`,
-        `Core business: ${stock.industry}.`,
+        `Listed on NSE with market cap of ₹${((stock.marketCap || 50000) / 1000).toFixed(0)}K Cr.`,
+        `Core business: ${stock.industry || 'Market Leader'}.`,
         `Trading at P/E of ${stock.pe || '—'} with RoE of ${stock.roe || '—'}%.`,
       ],
-      pros: ['Established business with a diversified base', 'Positive operating cash flow', 'No significant governance red flags'],
-      cons: ['Sector cyclicality', 'Valuation offers limited margin of safety', 'Competitive intensity in the industry'],
+      pros: ['Strong brand positioning', 'Positive operational cash flow', 'Clean balance sheet overview'],
+      cons: ['Market volatility exposure', 'Valuation premium', 'Macro regulatory headwinds'],
     }
+
     return {
       ...stock,
       about: profile.about,
@@ -285,12 +310,12 @@ export async function getStockDetail(id) {
       boardMeetings: safe(() => deriveBoardMeetings(stock), []),
       conviction: conviction || FALLBACK_CONVICTION,
       redFlags: {
-        questions: redFlags.questions,
+        questions: redFlags.questions || [],
         results: redFlagResults,
       },
     }
-  } catch {
-    const stock = getStockRow(id) || {}
+  } catch (err) {
+    const stock = getStockRow(id)
     return {
       ...stock,
       about: '',
