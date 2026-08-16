@@ -24,43 +24,42 @@ import {
 import { seededRand } from '../utils/random'
 
 const FMP_KEY = import.meta.env.VITE_FMP_API_KEY
-const API_LATENCY = 120
+const API_LATENCY = 100
 
 function delay(ms = API_LATENCY) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function getStockRow(id) {
-  const symbol = (id || '').toUpperCase()
-  const found = stocks.find((s) => s.id === symbol || s.symbol === symbol)
+  const sym = (id || '').toUpperCase().replace('.NS', '').replace('.BO', '')
+  const found = stocks.find((s) => s.id === sym || s.symbol === sym)
   if (found) return found
 
-  // Universal dynamic fallback if stock is not in static JSON
   return {
-    id: symbol,
-    symbol: symbol,
-    name: symbol,
-    sector: 'Diversified',
+    id: sym,
+    symbol: sym,
+    name: sym,
+    sector: 'Equity',
     industry: 'Diversified',
     price: 1000,
     change: 0,
     changePct: 0,
     marketCap: 50000,
-    pe: 25.0,
-    pb: 3.5,
-    roe: 16.5,
-    roce: 18.2,
-    debtToEquity: 0.2,
-    freeCashFlow: 500,
-    netProfit: 1200,
-    revenueGrowth: 12.5,
-    profitGrowth: 14.2,
+    pe: 24.5,
+    pb: 3.2,
+    roe: 15.8,
+    roce: 17.5,
+    debtToEquity: 0.3,
+    freeCashFlow: 450,
+    netProfit: 950,
+    revenueGrowth: 11.2,
+    profitGrowth: 13.5,
     fiftyTwoWHigh: 1200,
-    fiftyTwoWLow: 850,
-    promoterHolding: 52.0,
-    fiiHolding: 21.0,
-    diiHolding: 15.0,
-    publicHolding: 12.0,
+    fiftyTwoWLow: 800,
+    promoterHolding: 51.5,
+    fiiHolding: 20.2,
+    diiHolding: 14.8,
+    publicHolding: 13.5,
     promoterPledge: 0,
     rating: 'BUY'
   }
@@ -138,31 +137,67 @@ export async function getIndices() {
 }
 
 export async function getAllStocks() {
-  await delay()
+  await delay(60)
   return stocks
 }
 
+// LIVE SEARCH: Local JSON + Live FMP API Search
 export async function searchStocks(query) {
-  await delay(80)
   const q = (query || '').trim().toLowerCase()
   if (!q) return []
-  return stocks
-    .filter((s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
-    .slice(0, 8)
+
+  const localMatches = stocks.filter(
+    (s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
+  )
+
+  if (FMP_KEY && localMatches.length < 5) {
+    try {
+      const res = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query)}&limit=10&apikey=${FMP_KEY}`)
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        const apiMatches = data
+          .filter(item => item.currency === 'INR' || (item.exchangeShortName && ['NSE', 'BSE', 'INDEX'].includes(item.exchangeShortName)))
+          .map(item => {
+            const cleanSym = item.symbol.replace('.NS', '').replace('.BO', '')
+            return {
+              id: cleanSym,
+              symbol: cleanSym,
+              name: item.name || cleanSym,
+              sector: 'Equity',
+              price: item.price || 0,
+              changePct: 0,
+              marketCap: 0
+            }
+          })
+
+        const combined = [...localMatches]
+        for (const item of apiMatches) {
+          if (!combined.some(c => c.symbol.toUpperCase() === item.symbol.toUpperCase())) {
+            combined.push(item)
+          }
+        }
+        return combined.slice(0, 8)
+      }
+    } catch (e) {
+      console.warn("Live search fallback applied")
+    }
+  }
+
+  return localMatches.slice(0, 8)
 }
 
 export async function getStock(id) {
-  await delay()
+  await delay(60)
   return getStockRow(id)
 }
 
 export async function getStockNews(id) {
-  await delay(90)
+  await delay(60)
   return news[id] || []
 }
 
 export async function getCandles(id) {
-  await delay(140)
+  await delay(80)
   try {
     const stock = getStockRow(id)
     return deriveCandles(stock)
@@ -172,7 +207,7 @@ export async function getCandles(id) {
 }
 
 export async function getTechnicalIndicators(id) {
-  await delay(120)
+  await delay(60)
   try {
     const stock = getStockRow(id)
     return deriveTechnical(stock)
@@ -182,7 +217,7 @@ export async function getTechnicalIndicators(id) {
 }
 
 export async function getFinancialStatements(id) {
-  await delay(160)
+  await delay(80)
   try {
     const stock = getStockRow(id)
     const balanceSheet = deriveBalanceSheet(stock)
@@ -200,7 +235,7 @@ export async function getFinancialStatements(id) {
 }
 
 export async function getShareholderAnalytics(id) {
-  await delay(120)
+  await delay(60)
   try {
     const stock = getStockRow(id)
     return {
@@ -214,7 +249,7 @@ export async function getShareholderAnalytics(id) {
 }
 
 export async function getCorporateDocuments(id) {
-  await delay(120)
+  await delay(60)
   try {
     const stock = getStockRow(id)
     return deriveDocuments(stock)
@@ -224,13 +259,13 @@ export async function getCorporateDocuments(id) {
 }
 
 export async function getPeers(id) {
-  await delay(140)
+  await delay(60)
   const stock = getStockRow(id)
   return derivePeers(stock, stocks)
 }
 
 export async function getComparison(ids = []) {
-  await delay(120)
+  await delay(60)
   return ids
     .map((id) => getStockRow(id))
     .filter(Boolean)
@@ -257,17 +292,17 @@ const FALLBACK_CONVICTION = {
 }
 
 export async function getStockDetail(id) {
-  await delay(150)
+  await delay(80)
   try {
-    let stock = getStockRow(id)
+    const cleanSym = (id || '').toUpperCase().replace('.NS', '').replace('.BO', '')
+    let stock = getStockRow(cleanSym)
 
-    // Real-Time FMP Fetch
+    // Real-time quote fetch from FMP
     if (FMP_KEY) {
       try {
-        const symbolClean = id.replace('.NS', '')
-        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbolClean}.NS?apikey=${FMP_KEY}`)
+        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${cleanSym}.NS?apikey=${FMP_KEY}`)
         const data = await res.json()
-        if (data && data.length > 0) {
+        if (Array.isArray(data) && data.length > 0) {
           const live = data[0]
           stock = {
             ...stock,
@@ -282,21 +317,21 @@ export async function getStockDetail(id) {
           }
         }
       } catch (e) {
-        console.warn("FMP live fetch failed, fallback applied.")
+        console.warn("FMP live quote failed, default applied")
       }
     }
 
-    const redFlagResults = getRedFlagResults(id)
+    const redFlagResults = getRedFlagResults(cleanSym)
     const conviction = safe(() => deriveConviction(stock, redFlagResults || []), FALLBACK_CONVICTION)
-    const profile = stockProfiles[id] || {
-      about: `${stock.name || stock.symbol} operates in the Indian equity market listed on NSE.`,
+    const profile = stockProfiles[cleanSym] || {
+      about: `${stock.name || stock.symbol} is an active listed company in the Indian stock market (NSE/BSE).`,
       keyPoints: [
-        `Listed on NSE with market cap of ₹${((stock.marketCap || 50000) / 1000).toFixed(0)}K Cr.`,
-        `Core business: ${stock.industry || 'Market Leader'}.`,
+        `Listed on Indian Exchanges with market cap of ₹${((stock.marketCap || 50000) / 1000).toFixed(0)}K Cr.`,
+        `Core industry: ${stock.industry || 'Market Leader'}.`,
         `Trading at P/E of ${stock.pe || '—'} with RoE of ${stock.roe || '—'}%.`,
       ],
-      pros: ['Strong brand positioning', 'Positive operational cash flow', 'Clean balance sheet overview'],
-      cons: ['Market volatility exposure', 'Valuation premium', 'Macro regulatory headwinds'],
+      pros: ['Strong industry presence', 'Consistent cash flows', 'Clean corporate governance'],
+      cons: ['Broader market volatility risk', 'Valuation premium sensitivity', 'Cyclical headwinds'],
     }
 
     return {
@@ -314,7 +349,7 @@ export async function getStockDetail(id) {
         results: redFlagResults,
       },
     }
-  } catch (err) {
+  } catch {
     const stock = getStockRow(id)
     return {
       ...stock,
@@ -332,7 +367,7 @@ export async function getStockDetail(id) {
 }
 
 export async function screenStocks(filters = {}) {
-  await delay(140)
+  await delay(80)
   const {
     maxPE,
     minMarketCap,
@@ -367,32 +402,39 @@ export async function screenStocks(filters = {}) {
 }
 
 export async function getIPOs() {
-  await delay()
+  await delay(60)
   return ipos
 }
 
-const BANK_SECTORS = new Set(['Banking', 'Financial Services'])
+// ============================================
+// 🔥 YAHAN HAIN ALL INDICES KI FULL LIVE LIST 🔥
+// ============================================
+
+const NIFTY50_SYMBOLS = ['RELIANCE','TCS','HDFCBANK','ICICIBANK','BHARTIARTL','SBIN','INFY','ITC','HINDUNILVR','LT','BAJFINANCE','HCLTECH','MARUTI','SUNPHARMA','TATAMOTORS','M&M','ASIANPAINT','ULTRACEMCO','TITAN','KOTAKBANK','NTPC','AXISBANK','ONGC','POWERGRID','COALINDIA','TATASTEEL','BAJAJFINSV','ADANIENT','ADANIPORTS','HINDALCO','WIPRO','GRASIM','TECHM','NESTLEIND','JSWSTEEL','CIPLA','SBILIFE','DRREDDY','BRITANNIA','EICHERMOT','DIVISLAB','APOLLOHOSP','BAJAJ-AUTO','TATACONSUM','HEROMOTOCO','HDFCLIFE','INDUSINDBK','UPL','BPCL','LTIM']
+
+const SENSEX_SYMBOLS = ['RELIANCE','TCS','HDFCBANK','ICICIBANK','BHARTIARTL','SBIN','INFY','ITC','HINDUNILVR','LT','BAJFINANCE','HCLTECH','MARUTI','SUNPHARMA','TATAMOTORS','M&M','ASIANPAINT','ULTRACEMCO','TITAN','KOTAKBANK','NTPC','AXISBANK','POWERGRID','TATASTEEL','BAJAJFINSV','INDUSINDBK','NESTLEIND','TECHM','WIPRO','JSWSTEEL']
+
+const BANKNIFTY_SYMBOLS = ['HDFCBANK','ICICIBANK','AXISBANK','KOTAKBANK','SBIN','INDUSINDBK','PNB','BANKBARODA','FEDERALBNK','IDFCFIRSTB','AUBANK','BANDHANBNK']
+
+const MIDCAP_SYMBOLS = ['VBL','IREDA','SUZLON','YESBANK','NHPC','BHEL','IDEA','TRENT','LUPIN','PIIND','INDHOTEL','CUMMINSIND','OBEROIRLTY','ASTRAL','POLYCAB','DIXON','RECLTD','PFC','IRFC','RVNL']
+
+const SMALLCAP_SYMBOLS = ['CDSL','BSE','IEX','MAZDOCK','COCHINSHIP','RAILTEL','IRCON','RITES','PAYTM','NYKAA','ZOMATO','ANGELONE','MCX','RENUKA','EASEMYTRIP','SUVENPHAR','CHALET','CEATLTD','LATENTVIEW','MAPMYINDIA']
 
 function getConstituents(indexId) {
-  const ranked = [...stocks].sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0))
+  let symbols = []
   switch (indexId) {
-    case 'NIFTY50':
-      return ranked
-    case 'SENSEX':
-      return ranked.slice(0, 22)
-    case 'BANKNIFTY':
-      return ranked.filter((s) => BANK_SECTORS.has(s.sector))
-    case 'MIDCAP':
-      return ranked.slice(22)
-    case 'SMALLCAP':
-      return ranked.slice(22)
-    default:
-      return []
+    case 'NIFTY50': symbols = NIFTY50_SYMBOLS; break;
+    case 'SENSEX': symbols = SENSEX_SYMBOLS; break;
+    case 'BANKNIFTY': symbols = BANKNIFTY_SYMBOLS; break;
+    case 'MIDCAP': symbols = MIDCAP_SYMBOLS; break;
+    case 'SMALLCAP': symbols = SMALLCAP_SYMBOLS; break;
+    default: symbols = NIFTY50_SYMBOLS.slice(0, 10);
   }
+  return symbols.map(sym => getStockRow(sym))
 }
 
 export async function getIndex(id) {
-  await delay(100)
+  await delay(60)
   const meta = indices.find((ix) => ix.id === id)
   if (!meta) return null
   const constituents = getConstituents(id)
@@ -404,7 +446,7 @@ export async function getIndex(id) {
 }
 
 export async function getPremiumInsights() {
-  await delay(120)
+  await delay(60)
   const featured = ['RELIANCE', 'TCS', 'HAL', 'SBIN', 'TATAMOTORS', 'HDFCBANK', 'SUNPHARMA', 'LT']
   return featured
     .map((id) => getStockRow(id))
