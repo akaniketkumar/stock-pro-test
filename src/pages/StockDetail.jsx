@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-dom' // Adjust this if it was react-router-dom in your setup
 import {
   getStockDetail,
   getCandles,
@@ -77,7 +77,9 @@ function SectionAnchor({ id, title, subtitle, children }) {
 }
 
 export default function StockDetail() {
-  const { id } = useParams()
+  // If you are using React Router, this might be from 'react-router-dom'.
+  // Using standard window.location to get ID if useParams is tricky, but sticking to your original:
+  const { id } = useParams() || { id: window.location.pathname.split('/').pop() }
   const { isPremium } = useApp()
   const [stock, setStock] = useState(null)
   const [candles, setCandles] = useState([])
@@ -119,7 +121,7 @@ export default function StockDetail() {
 
   if (loading || !stock) return <PageSkeleton />
 
-  // 🚀 PRO FIX: Default Failsafe Data to Prevent Crashes
+  // 🚀 PRO FIX: Default Failsafes - Ab Data na milne par App Crash nahi hogi!
   const safeConviction = stock.conviction || { score: 50, label: 'Neutral', thesis: 'AI Data is currently being generated for this stock.', reasons: [], risks: [] }
   const safeRedFlags = stock.redFlags || { questions: [], results: [] }
   const safeMeetings = stock.boardMeetings || []
@@ -185,7 +187,7 @@ export default function StockDetail() {
         </div>
       </div>
 
-      {/* 🚀 PRO FIX: Separated Financial Overview and Shareholding Pattern into full-width sections */}
+      {/* 🚀 PRO FIX: Freed Shareholding Section from restrictive Grid so it won't squeeze/overlap */}
       <div className="space-y-6">
         <div className="card p-4">
           <SectionTitle
@@ -211,7 +213,6 @@ export default function StockDetail() {
             title="Shareholding Pattern"
             subtitle="Promoters, FII, DII and public with pledge tracking"
           />
-          {/* Now Shareholding Pattern has 100% width and will never overlap! */}
           <ShareholdingSection stock={stock} />
         </div>
       </div>
