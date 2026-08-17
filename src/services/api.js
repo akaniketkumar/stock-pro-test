@@ -45,7 +45,7 @@ function getStockRow(id) {
   const price = 50 + (hash % 4000); 
   const roe = 8 + (hash % 20);
   
-  // 🚀 PRO FIX: Added realistic Day High, Day Low, Open, Volume, and Turnover so nothing stays blank (-)
+  // 🚀 Added realistic Day High, Day Low, Open, Volume, and Turnover
   const changePct = ((hash % 40) - 20) / 10;
   const change = (price * changePct) / 100;
   const prevClose = price - change;
@@ -444,7 +444,7 @@ export async function getIPOs() {
   return ipos
 }
 
-// 🚀 PRO FIX: Accurate Index Constituents. Moved Zomato, Paytm, Nykaa, CDSL to Midcap. Added true smallcaps.
+// 🚀 Accurate Index Constituents. Moved Zomato, Paytm, Nykaa, CDSL, BSE to Midcap.
 const NIFTY50_SYMBOLS = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL', 'INFY', 'ITC', 'SBIN', 'HINDUNILVR', 'LT', 'BAJFINANCE', 'M&M', 'HCLTECH', 'TATAMOTORS', 'SUNPHARMA', 'NTPC', 'KOTAKBANK', 'AXISBANK', 'ONGC', 'POWERGRID', 'ASIANPAINT', 'COALINDIA', 'BAJAJFINSV', 'TATASTEEL', 'ADANIENT', 'MARUTI', 'HINDALCO', 'ULTRACEMCO', 'ADANIPORTS', 'GRASIM', 'WIPRO', 'JSWSTEEL', 'TRENT', 'BEL', 'NESTLEIND', 'CIPLA', 'DRREDDY', 'TATACONSUM', 'BAJAJ-AUTO', 'APOLLOHOSP', 'BRITANNIA', 'EICHERMOT', 'SBILIFE', 'SHRIRAMFIN', 'HDFCLIFE', 'TECHM', 'INDUSINDBK', 'BPCL', 'HEROMOTOCO', 'CHOLAFIN']
 
 const SENSEX_SYMBOLS = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL', 'INFY', 'ITC', 'SBIN', 'HINDUNILVR', 'LT', 'BAJFINANCE', 'M&M', 'HCLTECH', 'TATAMOTORS', 'SUNPHARMA', 'NTPC', 'KOTAKBANK', 'AXISBANK', 'POWERGRID', 'ASIANPAINT', 'BAJAJFINSV', 'TATASTEEL', 'MARUTI', 'ULTRACEMCO', 'JSWSTEEL', 'NESTLEIND', 'INDUSINDBK', 'TECHM', 'WIPRO', 'BAJAJ-AUTO']
