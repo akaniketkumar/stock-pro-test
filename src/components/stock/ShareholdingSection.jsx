@@ -27,24 +27,32 @@ export default function ShareholdingSection({ stock }) {
     : (stock.yearlyHoldingsHistory || defaultYearlyHistory)
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-center">
-      <div className="w-full overflow-hidden">
-        <HoldingPie data={holding} pledge={stock.promoterPledge || 0} />
+    // 🚀 PRO FIX: Replaced unstable Grid with a rock-solid Flexbox layout
+    <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center justify-between w-full">
+      
+      {/* Left Side: Pie Chart - Restricted Width */}
+      <div className="w-full lg:w-5/12 flex justify-center items-center flex-shrink-0">
+        <div className="w-full max-w-[400px]">
+          <HoldingPie data={holding} pledge={stock.promoterPledge || 0} />
+        </div>
       </div>
 
-      <div className="w-full min-w-0">
-        <div className="mb-3 flex items-center justify-between gap-2">
+      {/* Right Side: Trend Table & Cards - Flexible Width */}
+      <div className="w-full lg:w-7/12 min-w-0 flex-1">
+        
+        {/* Header Section (Title + Toggle Button) */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h4 className="flex items-center gap-2 text-sm font-bold text-slate-200">
             Holding Trend ({viewMode === 'quarterly' ? 'Last 4 Quarters' : 'Last 5 Years'})
             <Help text="Track how promoter, FII, DII and public ownership has changed over quarters or full financial years." />
           </h4>
 
           {/* Toggle Button for Quarterly vs Yearly */}
-          <div className="inline-flex rounded-lg border border-slate-800 bg-terminal-900/80 p-0.5">
+          <div className="inline-flex rounded-lg border border-slate-800 bg-terminal-900/80 p-0.5 flex-shrink-0 shadow-sm">
             <button
               type="button"
               onClick={() => setViewMode('quarterly')}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
+              className={`rounded-md px-3 py-1.5 text-[11px] font-medium transition-all ${
                 viewMode === 'quarterly'
                   ? 'bg-slate-700 text-white shadow'
                   : 'text-slate-400 hover:text-slate-200'
@@ -55,7 +63,7 @@ export default function ShareholdingSection({ stock }) {
             <button
               type="button"
               onClick={() => setViewMode('yearly')}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-all ${
+              className={`rounded-md px-3 py-1.5 text-[11px] font-medium transition-all ${
                 viewMode === 'yearly'
                   ? 'bg-slate-700 text-white shadow'
                   : 'text-slate-400 hover:text-slate-200'
@@ -66,21 +74,22 @@ export default function ShareholdingSection({ stock }) {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto rounded-lg border border-slate-800">
-          <table className="w-full min-w-[400px] text-left text-xs">
+        {/* Table Container */}
+        <div className="w-full overflow-x-auto rounded-xl border border-slate-800 shadow-sm">
+          <table className="w-full min-w-[450px] text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-500">
-                <th className="py-2 pl-3 pr-2 font-semibold">Period</th>
-                <th className="py-2 pr-2 font-semibold">
+              <tr className="border-b border-slate-800 bg-slate-800/20 text-[11px] uppercase tracking-wider text-slate-400">
+                <th className="py-3 pl-4 pr-2 font-semibold">Period</th>
+                <th className="py-3 pr-2 font-semibold">
                   <span className="inline-flex items-center gap-1">Promoters<Help glossaryKey="promoterHolding" iconSize="h-3 w-3" /></span>
                 </th>
-                <th className="py-2 pr-2 font-semibold">
+                <th className="py-3 pr-2 font-semibold">
                   <span className="inline-flex items-center gap-1">FII<Help glossaryKey="fiiHolding" iconSize="h-3 w-3" /></span>
                 </th>
-                <th className="py-2 pr-2 font-semibold">
+                <th className="py-3 pr-2 font-semibold">
                   <span className="inline-flex items-center gap-1">DII<Help glossaryKey="diiHolding" iconSize="h-3 w-3" /></span>
                 </th>
-                <th className="py-2 pr-3 font-semibold">
+                <th className="py-3 pr-4 font-semibold">
                   <span className="inline-flex items-center gap-1">Public<Help glossaryKey="publicHolding" iconSize="h-3 w-3" /></span>
                 </th>
               </tr>
@@ -89,15 +98,19 @@ export default function ShareholdingSection({ stock }) {
               {history.map((row) => {
                 const drift = row.promoters - holding.promoters
                 return (
-                  <tr key={row.period} className="border-b border-slate-800/50 font-mono text-slate-300">
-                    <td className="py-2 pl-3 pr-2 text-slate-400 font-semibold">{row.period}</td>
-                    <td className={`py-2 pr-2 ${changeClass(drift)}`}>
+                  <tr key={row.period} className="border-b border-slate-800/50 font-mono text-slate-300 hover:bg-slate-800/10 transition-colors">
+                    <td className="py-2.5 pl-4 pr-2 text-slate-400 font-semibold">{row.period}</td>
+                    <td className={`py-2.5 pr-2 flex items-center gap-1 ${changeClass(drift)}`}>
                       {row.promoters ? row.promoters.toFixed(1) : '0.0'}%
-                      {drift !== 0 && <span className="ml-0.5 text-[10px]">{drift > 0 ? '+' : ''}{drift.toFixed(1)}</span>}
+                      {drift !== 0 && (
+                        <span className="inline-block text-[10px] bg-slate-800/50 px-1 rounded">
+                          {drift > 0 ? '+' : ''}{drift.toFixed(1)}
+                        </span>
+                      )}
                     </td>
-                    <td className="py-2 pr-2">{row.fii ? row.fii.toFixed(1) : '0.0'}%</td>
-                    <td className="py-2 pr-2">{row.dii ? row.dii.toFixed(1) : '0.0'}%</td>
-                    <td className="py-2 pr-3">{row.publicHolding ? row.publicHolding.toFixed(1) : '0.0'}%</td>
+                    <td className="py-2.5 pr-2">{row.fii ? row.fii.toFixed(1) : '0.0'}%</td>
+                    <td className="py-2.5 pr-2">{row.dii ? row.dii.toFixed(1) : '0.0'}%</td>
+                    <td className="py-2.5 pr-4">{row.publicHolding ? row.publicHolding.toFixed(1) : '0.0'}%</td>
                   </tr>
                 )
               })}
@@ -105,26 +118,28 @@ export default function ShareholdingSection({ stock }) {
           </table>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3 text-center">
-          <div className="rounded-lg border border-slate-800 bg-terminal-900/50 p-3">
+        {/* Bottom Metrics Cards */}
+        <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+          <div className="rounded-xl border border-slate-800 bg-terminal-900/40 p-3.5 transition-colors hover:bg-terminal-900/60">
             <div className="flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-slate-500">
               Promoter Pledge
-              <Help glossaryKey="promoterPledge" iconSize="h-3 w-3" />
+              <Help glossaryKey="promoterPledge" iconSize="h-3.5 w-3.5" />
             </div>
-            <div className={`mt-1 font-mono text-lg font-bold ${stock.promoterPledge > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+            <div className={`mt-1.5 font-mono text-xl font-bold ${stock.promoterPledge > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
               {stock.promoterPledge > 0 ? `${stock.promoterPledge}%` : 'None'}
             </div>
           </div>
-          <div className="rounded-lg border border-slate-800 bg-terminal-900/50 p-3">
+          <div className="rounded-xl border border-slate-800 bg-terminal-900/40 p-3.5 transition-colors hover:bg-terminal-900/60">
             <div className="flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-slate-500">
               Price vs 52W High
-              <Help glossaryKey="fiftyTwoWHigh" iconSize="h-3 w-3" />
+              <Help glossaryKey="fiftyTwoWHigh" iconSize="h-3.5 w-3.5" />
             </div>
-            <div className="mt-1 font-mono text-lg font-bold text-slate-100">
+            <div className="mt-1.5 font-mono text-xl font-bold text-slate-100">
               {stock.price && stock.fiftyTwoWHigh ? `${Math.max(0, ((stock.price / stock.fiftyTwoWHigh) * 100).toFixed(0))}%` : '—'}
             </div>
           </div>
         </div>
+        
       </div>
     </div>
   )
