@@ -108,7 +108,8 @@ export default function StockDetail() {
         setDocuments(docs)
         setLoading(false)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Data Fetch Error: ", err)
         if (!cancelled) setLoading(false)
       })
     return () => {
@@ -117,6 +118,11 @@ export default function StockDetail() {
   }, [id])
 
   if (loading || !stock) return <PageSkeleton />
+
+  // 🚀 PRO FIX: Default Failsafe Data to Prevent Crashes
+  const safeConviction = stock.conviction || { score: 50, label: 'Neutral', thesis: 'AI Data is currently being generated for this stock.', reasons: [], risks: [] }
+  const safeRedFlags = stock.redFlags || { questions: [], results: [] }
+  const safeMeetings = stock.boardMeetings || []
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6">
@@ -179,7 +185,8 @@ export default function StockDetail() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* 🚀 PRO FIX: Separated Financial Overview and Shareholding Pattern into full-width sections */}
+      <div className="space-y-6">
         <div className="card p-4">
           <SectionTitle
             icon={
@@ -204,6 +211,7 @@ export default function StockDetail() {
             title="Shareholding Pattern"
             subtitle="Promoters, FII, DII and public with pledge tracking"
           />
+          {/* Now Shareholding Pattern has 100% width and will never overlap! */}
           <ShareholdingSection stock={stock} />
         </div>
       </div>
@@ -223,7 +231,7 @@ export default function StockDetail() {
       <SectionAnchor
         id="peers"
         title="Peer Comparison"
-        subtitle={`Top peers in the ${stock.sector} sector and your own custom comparison basket`}
+        subtitle={`Top peers in the ${stock.sector || 'Market'} sector and your own custom comparison basket`}
       >
         <PeerComparison stock={stock} />
       </SectionAnchor>
@@ -267,7 +275,7 @@ export default function StockDetail() {
           title="Board Meetings & Corporate Actions"
           subtitle="Upcoming and recent board events"
         />
-        <BoardMeetings meetings={stock.boardMeetings} />
+        <BoardMeetings meetings={safeMeetings} />
       </div>
 
       <div className="card relative overflow-hidden p-4">
@@ -290,14 +298,14 @@ export default function StockDetail() {
         >
           <div className="space-y-8">
             <div className="rounded-xl border border-slate-800 bg-terminal-900/40 p-5">
-              <ConvictionMeter conviction={stock.conviction} />
+              <ConvictionMeter conviction={safeConviction} />
             </div>
             <div className="p-1">
               <div className="mb-4 flex items-center gap-2">
                 <h3 className="text-base font-bold text-slate-100">16-Point Forensic Red Flag & Moat Analyzer</h3>
                 <PremiumBadge small />
               </div>
-              <RedFlagAnalyzer redFlags={stock.redFlags} />
+              <RedFlagAnalyzer redFlags={safeRedFlags} />
             </div>
           </div>
         </LockedOverlay>
