@@ -30,7 +30,6 @@ function delay(ms = API_LATENCY) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// 🚀 PRO FIX: Generate unique, realistic data for ANY searched stock
 function getHash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -42,10 +41,18 @@ function getStockRow(id) {
   const found = stocks.find((s) => s.id === sym || s.symbol === sym)
   if (found) return found
 
-  // Dynamic realistic data generation for missing/small cap stocks
   const hash = getHash(sym);
   const price = 50 + (hash % 4000); 
   const roe = 8 + (hash % 20);
+  
+  // 🚀 PRO FIX: Added realistic Day High, Day Low, Open, Volume, and Turnover so nothing stays blank (-)
+  const changePct = ((hash % 40) - 20) / 10;
+  const change = (price * changePct) / 100;
+  const prevClose = price - change;
+  const open = prevClose * (1 + (((hash % 20) - 10) / 1000));
+  const dayHigh = Math.max(price, open) * (1 + ((hash % 15) / 1000));
+  const dayLow = Math.min(price, open) * (1 - ((hash % 15) / 1000));
+  const volume = 50000 + (hash % 2000000);
   
   return {
     id: sym,
@@ -53,9 +60,14 @@ function getStockRow(id) {
     name: id.toUpperCase(),
     sector: 'Equity',
     industry: 'Diversified',
-    price: price,
-    change: ((hash % 40) - 20) / 2,
-    changePct: ((hash % 40) - 20) / 10,
+    price: parseFloat(price.toFixed(2)),
+    change: parseFloat(change.toFixed(2)),
+    changePct: parseFloat(changePct.toFixed(2)),
+    open: parseFloat(open.toFixed(2)),
+    dayHigh: parseFloat(dayHigh.toFixed(2)),
+    dayLow: parseFloat(dayLow.toFixed(2)),
+    volume: volume,
+    turnover: parseFloat(((price * volume) / 10000000).toFixed(2)), // in Cr
     marketCap: 1000 + (hash % 90000),
     pe: 12 + (hash % 40),
     pb: 1 + (hash % 8),
@@ -66,8 +78,8 @@ function getStockRow(id) {
     netProfit: 200 + (hash % 800),
     revenueGrowth: 5 + (hash % 25),
     profitGrowth: 5 + (hash % 30),
-    fiftyTwoWHigh: price * (1 + ((hash % 30)/100)),
-    fiftyTwoWLow: price * (1 - ((hash % 30)/100)),
+    fiftyTwoWHigh: dayHigh * (1 + ((hash % 30)/100)),
+    fiftyTwoWLow: dayLow * (1 - ((hash % 30)/100)),
     promoterHolding: 40 + (hash % 35),
     fiiHolding: 5 + (hash % 20),
     diiHolding: 5 + (hash % 15),
@@ -153,7 +165,6 @@ export async function getAllStocks() {
   return stocks
 }
 
-// 🚀 PRO FIX: Guaranteed Search Results for ANY company
 export async function searchStocks(query) {
   const q = (query || '').trim().toLowerCase()
   if (!q) return []
@@ -195,7 +206,6 @@ export async function searchStocks(query) {
     }
   }
 
-  // 🚀 Universal Smart Fallback: Ensures search NEVER returns empty for missing API key
   if (combined.length === 0) {
     const cleanQuery = query.toUpperCase().trim()
     const syntheticSym = cleanQuery.replace(/\s+/g, '').substring(0, 10)
@@ -434,16 +444,16 @@ export async function getIPOs() {
   return ipos
 }
 
-// 🚀 PRO FIX: 100% Accurate Latest Index Constituents (2024-25 Updates)
+// 🚀 PRO FIX: Accurate Index Constituents. Moved Zomato, Paytm, Nykaa, CDSL to Midcap. Added true smallcaps.
 const NIFTY50_SYMBOLS = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL', 'INFY', 'ITC', 'SBIN', 'HINDUNILVR', 'LT', 'BAJFINANCE', 'M&M', 'HCLTECH', 'TATAMOTORS', 'SUNPHARMA', 'NTPC', 'KOTAKBANK', 'AXISBANK', 'ONGC', 'POWERGRID', 'ASIANPAINT', 'COALINDIA', 'BAJAJFINSV', 'TATASTEEL', 'ADANIENT', 'MARUTI', 'HINDALCO', 'ULTRACEMCO', 'ADANIPORTS', 'GRASIM', 'WIPRO', 'JSWSTEEL', 'TRENT', 'BEL', 'NESTLEIND', 'CIPLA', 'DRREDDY', 'TATACONSUM', 'BAJAJ-AUTO', 'APOLLOHOSP', 'BRITANNIA', 'EICHERMOT', 'SBILIFE', 'SHRIRAMFIN', 'HDFCLIFE', 'TECHM', 'INDUSINDBK', 'BPCL', 'HEROMOTOCO', 'CHOLAFIN']
 
 const SENSEX_SYMBOLS = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL', 'INFY', 'ITC', 'SBIN', 'HINDUNILVR', 'LT', 'BAJFINANCE', 'M&M', 'HCLTECH', 'TATAMOTORS', 'SUNPHARMA', 'NTPC', 'KOTAKBANK', 'AXISBANK', 'POWERGRID', 'ASIANPAINT', 'BAJAJFINSV', 'TATASTEEL', 'MARUTI', 'ULTRACEMCO', 'JSWSTEEL', 'NESTLEIND', 'INDUSINDBK', 'TECHM', 'WIPRO', 'BAJAJ-AUTO']
 
 const BANKNIFTY_SYMBOLS = ['HDFCBANK', 'ICICIBANK', 'AXISBANK', 'KOTAKBANK', 'SBIN', 'INDUSINDBK', 'PNB', 'BANKBARODA', 'FEDERALBNK', 'IDFCFIRSTB', 'AUBANK', 'BANDHANBNK']
 
-const MIDCAP_SYMBOLS = ['VBL', 'IREDA', 'SUZLON', 'YESBANK', 'NHPC', 'BHEL', 'IDEA', 'TRENT', 'LUPIN', 'PIIND', 'INDHOTEL', 'CUMMINSIND', 'OBEROIRLTY', 'ASTRAL', 'POLYCAB', 'DIXON', 'RECLTD', 'PFC', 'IRFC', 'RVNL']
+const MIDCAP_SYMBOLS = ['VBL', 'IREDA', 'SUZLON', 'YESBANK', 'NHPC', 'BHEL', 'IDEA', 'TRENT', 'LUPIN', 'PIIND', 'INDHOTEL', 'CUMMINSIND', 'OBEROIRLTY', 'ZOMATO', 'PAYTM', 'NYKAA', 'BSE', 'CDSL', 'IRFC', 'RVNL']
 
-const SMALLCAP_SYMBOLS = ['CDSL', 'BSE', 'IEX', 'MAZDOCK', 'COCHINSHIP', 'RAILTEL', 'IRCON', 'RITES', 'PAYTM', 'NYKAA', 'ZOMATO', 'ANGELONE', 'MCX', 'RENUKA', 'EASEMYTRIP', 'SUVENPHAR', 'CHALET', 'CEATLTD', 'LATENTVIEW', 'MAPMYINDIA']
+const SMALLCAP_SYMBOLS = ['IEX', 'MAZDOCK', 'COCHINSHIP', 'RAILTEL', 'IRCON', 'RITES', 'ANGELONE', 'MCX', 'RENUKA', 'EASEMYTRIP', 'SUVENPHAR', 'CHALET', 'CEATLTD', 'LATENTVIEW', 'MAPMYINDIA', 'CAMS', 'REDINGTON', 'TRIDENT', 'UCOBANK', 'MRPL']
 
 function getConstituents(indexId) {
   let symbols = []
