@@ -3,10 +3,19 @@ import { useApp } from '../../context/AppContext'
 
 export default function Footer() {
   const { isPremium } = useApp()
+
+  // 🚀 PRO FIX: Ek function jo "Coming Soon" ka message dega un pages ke liye jo abhi nahi bane hain
+  const handleComingSoon = (e) => {
+    e.preventDefault();
+    alert('This feature is currently under development and will be available soon! 🚀');
+  }
+
   return (
     <footer className="border-t border-slate-800 bg-terminal-950">
       <div className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          
+          {/* Brand & Description */}
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-sky-500 to-indigo-600">
@@ -20,7 +29,7 @@ export default function Footer() {
             </div>
             <p className="mt-3 text-xs leading-relaxed text-slate-500">
               Pro-grade stock analysis, forensic red-flag screening and AI conviction for Indian markets. Built for
-              beginners, powered for professionals.
+              beginers, powered for professionals.
             </p>
             {isPremium && (
               <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
@@ -32,26 +41,37 @@ export default function Footer() {
             )}
           </div>
 
+          {/* Product Links */}
           <div>
             <h4 className="text-sm font-semibold text-slate-300">Product</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-500">
-              <li><Link to="/screener" className="hover:text-slate-300">Stock Screener</Link></li>
-              <li><Link to="/premium" className="hover:text-slate-300">Premium Insights</Link></li>
-              <li><Link to="/ipos" className="hover:text-slate-300">IPO Watch</Link></li>
-              <li><Link to="/" className="hover:text-slate-300">Market Overview</Link></li>
+              <li><Link to="/screener" className="hover:text-slate-300 transition-colors">Stock Screener</Link></li>
+              <li><Link to="/premium" className="hover:text-slate-300 transition-colors">Premium Insights</Link></li>
+              <li><Link to="/ipos" className="hover:text-slate-300 transition-colors">IPO Watch</Link></li>
+              <li><Link to="/" className="hover:text-slate-300 transition-colors">Market Overview</Link></li>
             </ul>
           </div>
 
+          {/* 🚀 PRO FIX: Changed useless span tags to actual clickable links */}
           <div>
             <h4 className="text-sm font-semibold text-slate-300">Resources</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-500">
-              <li><span className="cursor-pointer hover:text-slate-300">AI Conviction Methodology</span></li>
-              <li><span className="cursor-pointer hover:text-slate-300">16-Point Forensic Check</span></li>
-              <li><span className="cursor-pointer hover:text-slate-300">Nifty 50 Watchlist</span></li>
-              <li><span className="cursor-pointer hover:text-slate-300">Help Centre</span></li>
+              <li>
+                <a href="#" onClick={handleComingSoon} className="hover:text-slate-300 transition-colors">AI Conviction Methodology</a>
+              </li>
+              <li>
+                <a href="#" onClick={handleComingSoon} className="hover:text-slate-300 transition-colors">16-Point Forensic Check</a>
+              </li>
+              <li>
+                <Link to="/index/NIFTY50" className="hover:text-slate-300 transition-colors">Nifty 50 Watchlist</Link>
+              </li>
+              <li>
+                <a href="#" onClick={handleComingSoon} className="hover:text-slate-300 transition-colors">Help Centre</a>
+              </li>
             </ul>
           </div>
 
+          {/* Disclaimer */}
           <div>
             <h4 className="text-sm font-semibold text-slate-300">Disclaimer</h4>
             <p className="mt-3 text-xs leading-relaxed text-slate-500">
@@ -59,9 +79,10 @@ export default function Footer() {
               volatile; invest at your own risk after consulting a SEBI-registered advisor.
             </p>
           </div>
+
         </div>
         <div className="mt-8 border-t border-slate-800 pt-5 text-center text-xs text-slate-600">
-          © {new Date().getFullYear()} StockPro Technologies · Demo build with simulated T-1 data
+          © {new Date().getFullYear()} StockPro Technologies · Live Architecture
         </div>
       </div>
     </footer>
