@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-dom' // Adjust this if it was react-router-dom in your setup
+import { useParams } from 'react-router-dom' // Adjust this if it was react-router-dom in your setup
 import {
   getStockDetail,
   getCandles,
