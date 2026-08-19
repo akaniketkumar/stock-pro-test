@@ -137,7 +137,7 @@ export default function RedFlagAnalyzer({ redFlags }) {
                         <StatusIcon type={meta.icon} />
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-semibold text-slate-100">
-                            <span className="mr-2 font-mono text-xs text-slate-500">{String(q.id).padStart(2, '0')}</span>
+                            {/* Yahan se numbering hata di gayi hai */}
                             {q.question}
                           </div>
                           {res && res.status !== 'pass' && res.status !== 'strong' && (
