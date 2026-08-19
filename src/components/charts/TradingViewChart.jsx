@@ -19,10 +19,14 @@ export default function TradingViewChart({ symbol, candles = [] }) {
     function renderWidget() {
       if (!mounted || !window.TradingView || !containerRef.current) return
       cleanup()
+      
+      // BSE server is highly stable for TradingView free widgets
+      const tvSymbol = `BSE:${symbol}`
+
       widget = new window.TradingView.widget({
         container_id: containerRef.current.id,
         autosize: true,
-        symbol: `NSE:${symbol}`,
+        symbol: tvSymbol,
         interval: 'D',
         timezone: 'Asia/Kolkata',
         theme: 'dark',
@@ -67,10 +71,9 @@ export default function TradingViewChart({ symbol, candles = [] }) {
   }, [symbol])
 
   return (
-    // Restricted heights (h-96, maxHeight) removed -> Now truly responsive h-full
     <div className="relative h-full w-full overflow-hidden rounded-lg">
       <div
-        id={`tv-${symbol}-${Math.random().toString(36).slice(2, 8)}`}
+        id={`tv-chart-${symbol}`} // 🛠️ FIX: Stable ID used instead of Math.random()
         ref={containerRef}
         className="h-full w-full overflow-hidden"
         style={{ visibility: status === 'ready' ? 'visible' : 'hidden' }}
@@ -82,7 +85,6 @@ export default function TradingViewChart({ symbol, candles = [] }) {
       )}
       {status === 'fallback' && (
         <div className="absolute inset-0 overflow-hidden rounded-xl bg-[#0a0e17]">
-          {/* Default height explicitly passed for fallback scenarios if TV fails */}
           <CandleChart candles={candles} height={600} />
         </div>
       )}
