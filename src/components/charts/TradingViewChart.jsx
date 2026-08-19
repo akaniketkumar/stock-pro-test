@@ -20,8 +20,8 @@ export default function TradingViewChart({ symbol, candles = [] }) {
       if (!mounted || !window.TradingView || !containerRef.current) return
       cleanup()
       
-      // BSE server is highly stable for TradingView free widgets
-      const tvSymbol = `BSE:${symbol}`
+      // 🛠️ FIX: Wapas NSE set kar diya hai. Ab UFO nahi aayega.
+      const tvSymbol = `NSE:${symbol}`
 
       widget = new window.TradingView.widget({
         container_id: containerRef.current.id,
@@ -73,7 +73,7 @@ export default function TradingViewChart({ symbol, candles = [] }) {
   return (
     <div className="relative h-full w-full overflow-hidden rounded-lg">
       <div
-        id={`tv-chart-${symbol}`} // 🛠️ FIX: Stable ID used instead of Math.random()
+        id={`tv-chart-${symbol}`}
         ref={containerRef}
         className="h-full w-full overflow-hidden"
         style={{ visibility: status === 'ready' ? 'visible' : 'hidden' }}
