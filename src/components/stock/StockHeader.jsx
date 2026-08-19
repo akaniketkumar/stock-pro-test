@@ -1,48 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { formatMarketCap, formatPrice } from '../../utils/format'
+import { formatMarketCap, formatPercent, formatPrice } from '../../utils/format'
 import Help from '../ui/Help'
 import { useApp } from '../../context/AppContext'
 
 const STAT_CARD = 'rounded-xl border border-slate-800 bg-terminal-850 p-4'
-const TV_SCRIPT_SRC = 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js'
 
 export default function StockHeader({ stock }) {
   const { watchlist, toggleWatchlist } = useApp()
   const inList = watchlist.includes(stock.id)
-  
-  const widgetRef = useRef(null)
-  const [widgetLoaded, setWidgetLoaded] = useState(false)
-
-  // 🚀 LIVE PRICE WIDGET (TRADINGVIEW)
-  useEffect(() => {
-    // Agar ref nahi hai ya symbol nahi hai toh ruko
-    if (!widgetRef.current || !stock.symbol) return
-
-    // Purana script hatao taaki naya stock search karne par duplicate na bane
-    widgetRef.current.innerHTML = ''
-    setWidgetLoaded(false)
-
-    // Naya script element banao
-    const script = document.createElement('script')
-    script.src = TV_SCRIPT_SRC
-    script.type = 'text/javascript'
-    script.async = true
-    
-    // TradingView Widget Setup (Live NSE Data)
-    script.innerHTML = JSON.stringify({
-      symbol: `NSE:${stock.symbol}`,
-      width: "100%",
-      isTransparent: true,
-      colorTheme: "dark",
-      locale: "in"
-    })
-
-    script.onload = () => setWidgetLoaded(true)
-    
-    widgetRef.current.appendChild(script)
-
-  }, [stock.symbol])
+  const up = stock.changePct >= 0
+  const color = up ? 'text-emerald-400' : 'text-rose-400'
 
   const stats = [
     { label: 'Market Cap', value: formatMarketCap(stock.marketCap), help: 'marketCap' },
@@ -58,7 +25,6 @@ export default function StockHeader({ stock }) {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        {/* Left Side: Company Name & Sector */}
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{stock.name}</h1>
@@ -71,25 +37,14 @@ export default function StockHeader({ stock }) {
             <span>{stock.industry}</span>
           </div>
         </div>
-        
-        {/* Right Side: LIVE TradingView Price Widget */}
-        <div className="min-h-[60px] min-w-[200px] text-right">
-           <div 
-             ref={widgetRef} 
-             className="tradingview-widget-container"
-           >
-             {/* Loading text jab tak widget network se fetch ho raha hai */}
-             {!widgetLoaded && (
-               <div className="animate-pulse text-sm font-medium text-slate-500">
-                 Fetching Live Data...
-               </div>
-             )}
-             <div className="tradingview-widget-container__widget"></div>
-           </div>
+        <div className="text-right">
+          <div className={`font-mono text-3xl font-extrabold ${color}`}>{formatPrice(stock.price)}</div>
+          <div className={`mt-1 font-mono text-sm font-semibold ${color}`}>
+            {up ? '▲' : '▼'} {Math.abs(stock.change).toFixed(2)} ({Math.abs(stock.changePct).toFixed(2)}%)
+          </div>
         </div>
       </div>
 
-      {/* Stats Cards (Static Data from Generator) */}
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
         {stats.map((s) => (
           <div key={s.label} className={STAT_CARD}>
@@ -102,7 +57,6 @@ export default function StockHeader({ stock }) {
         ))}
       </div>
 
-      {/* Buttons & Badges */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -124,8 +78,8 @@ export default function StockHeader({ stock }) {
         <Link to="/premium" className="btn-primary px-3 py-1.5 text-xs">
           Premium Analysis
         </Link>
-        <span className="chip bg-emerald-500/10 text-emerald-400">
-          ● Live Market Data
+        <span className="chip text-slate-400">
+          Data: T-1 simulated · {formatPercent(stock.changePct)} today
         </span>
       </div>
     </div>
