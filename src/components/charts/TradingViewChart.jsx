@@ -67,21 +67,23 @@ export default function TradingViewChart({ symbol, candles = [] }) {
   }, [symbol])
 
   return (
-    <div className="relative h-96 w-full overflow-hidden" style={{ maxHeight: '460px' }}>
+    // Restricted heights (h-96, maxHeight) removed -> Now truly responsive h-full
+    <div className="relative h-full w-full overflow-hidden rounded-lg">
       <div
         id={`tv-${symbol}-${Math.random().toString(36).slice(2, 8)}`}
         ref={containerRef}
         className="h-full w-full overflow-hidden"
-        style={{ height: '384px', visibility: status === 'ready' ? 'visible' : 'hidden' }}
+        style={{ visibility: status === 'ready' ? 'visible' : 'hidden' }}
       />
       {status === 'loading' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#0a0e17]">
           <Spinner label="Loading TradingView chart..." />
         </div>
       )}
       {status === 'fallback' && (
-        <div className="absolute inset-0 overflow-hidden rounded-xl">
-          <CandleChart candles={candles} height={384} />
+        <div className="absolute inset-0 overflow-hidden rounded-xl bg-[#0a0e17]">
+          {/* Default height explicitly passed for fallback scenarios if TV fails */}
+          <CandleChart candles={candles} height={600} />
         </div>
       )}
     </div>
