@@ -150,12 +150,19 @@ export default function StockDetail() {
         <div className="mt-6"><AutoHeal name="Pros & Cons"><ProsCons stock={safeStock} /></AutoHeal></div>
       </SectionAnchor>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="card overflow-hidden p-4 lg:col-span-2">
+      {/* 🚀 PRO CHART SECTION: Full Width & Extended Height */}
+      <div className="space-y-6">
+        <div className="card overflow-hidden p-4">
           <SectionTitle title="Advanced Chart" subtitle="Candlestick, volume, SMA 20/50, MACD & RSI" />
-          <AutoHeal name="Chart">
-            {candles && candles.length > 0 ? <TradingViewChart symbol={safeStock.symbol} candles={candles} /> : <div className="flex h-64 items-center justify-center rounded-lg border border-slate-800 bg-slate-800/20 text-sm text-slate-500">Chart data updating...</div>}
-          </AutoHeal>
+          <div className="mt-4 h-[600px] w-full">
+            <AutoHeal name="Chart">
+              {candles && candles.length > 0 ? (
+                <TradingViewChart symbol={safeStock.symbol} candles={candles} />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-lg border border-slate-800 bg-slate-800/20 text-sm text-slate-500">Chart data updating...</div>
+              )}
+            </AutoHeal>
+          </div>
         </div>
 
         <div className="card p-4">
