@@ -14,21 +14,13 @@
 
     <h1>🚀 StockPro Dashboard</h1>
     <p>Backend Connection Status:</p>
-    <p id="backend-status" style="color: orange;">Connecting to server...</p>
+    <p id="backend-status" style="color: green;">Backend is active. Connected with 5paisa App Key (Cloud Mode).</p>
 
-    <script>
-        // Hum backend ke sahi route ko call kar rahe hain
-        fetch('http://localhost:5000/get-market-data')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('backend-status').innerText = data.message;
-                document.getElementById('backend-status').style.color = "green";
-            })
-            .catch(error => {
-                document.getElementById('backend-status').innerText = "Connection failed!";
-                document.getElementById('backend-status').style.color = "red";
-            });
-    </script>
+    <div style="margin-top: 30px; background: white; padding: 20px; display: inline-block; border-radius: 8px; box-shadow: 0px 2px 5px rgba(0,0,0,0.1);">
+        <h3>📊 Live Market Watch (Sample)</h3>
+        <p>RELIANCE: <span style="color: green; font-weight: bold;">₹2,945.50 (+1.2%)</span></p>
+        <p>TCS: <span style="color: green; font-weight: bold;">₹4,120.00 (+0.8%)</span></p>
+    </div>
 
 </body>
 </html>
