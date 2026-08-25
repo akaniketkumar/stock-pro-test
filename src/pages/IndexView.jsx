@@ -186,29 +186,29 @@ export default function IndexView() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((s) => (
+                {sorted.map((s, idx) => (
                   <tr
-                    key={s.id}
+                    key={s?.id || idx}
                     className="cursor-pointer border-b border-slate-800/50 transition-colors hover:bg-terminal-800/50"
-                    onClick={() => navigate(`/stock/${s.id}`)}
+                    onClick={() => s?.id && navigate(`/stock/${s.id}`)}
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-slate-100">{s.symbol}</span>
-                        <span className="hidden text-xs text-slate-500 lg:inline">{s.name}</span>
-                        <span className="hidden text-[10px] text-slate-600 xl:inline">{s.sector}</span>
+                        <span className="font-mono text-sm font-bold text-slate-100">{s?.symbol || '—'}</span>
+                        <span className="hidden text-xs text-slate-500 lg:inline">{s?.name || ''}</span>
+                        <span className="hidden text-[10px] text-slate-600 xl:inline">{s?.sector || ''}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-200">{formatPrice(s.price)}</td>
-                    <td className={`px-4 py-3 text-right font-mono ${changeClass(s.changePct)}`}>
-                      {s.changePct > 0 ? '+' : ''}
-                      {formatPercent(s.changePct)}
+                    <td className="px-4 py-3 text-right font-mono text-slate-200">{formatPrice(s?.price)}</td>
+                    <td className={`px-4 py-3 text-right font-mono ${changeClass(s?.changePct)}`}>
+                      {(s?.changePct ?? 0) > 0 ? '+' : ''}
+                      {formatPercent(s?.changePct ?? 0)}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-300">{formatMarketCap(s.marketCap)}</td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s.pe ?? '—'}</td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s.roce ?? '—'}</td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s.roe ?? '—'}</td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s.debtToEquity ?? '—'}</td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">{formatMarketCap(s?.marketCap)}</td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s?.pe ?? '—'}</td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s?.roce ?? '—'}</td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s?.roe ?? '—'}</td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">{s?.debtToEquity ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
