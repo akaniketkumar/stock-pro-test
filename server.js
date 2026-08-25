@@ -46,12 +46,13 @@ app.get('/get-market-data', async (req, res) => {
     });
 
   } catch (error) {
-    // Agar 5paisa ka server restrict karta hai, toh hum clean fallback data dikhayenge taaki app na ruke
+    console.error("5paisa market data fetch failed:", error.message);
+    // Fallback so the app doesn't crash, but honestly flagged as fallback (not live) data
     res.json({
-      success: true,
-      message: "Backend is active. Connected with 5paisa App Key.",
-      clientCode: process.env.CLIENT_CODE,
-      note: "Live feed channel initialized successfully."
+      success: false,
+      fallback: true,
+      message: "Live feed unavailable right now, showing fallback status.",
+      error: error.message
     });
   }
 });
