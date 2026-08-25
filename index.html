@@ -1,26 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StockPro Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f6f9; }
-        h1 { color: #333; }
-        p { font-size: 18px; color: #666; }
-        #backend-status { font-weight: bold; }
-    </style>
-</head>
-<body>
-
-    <h1>🚀 StockPro Dashboard</h1>
-    <p>Backend Connection Status:</p>
-    <p id="backend-status" style="color: green;">Backend is active. Connected with 5paisa App Key (Cloud Mode).</p>
-
-    <div style="margin-top: 30px; background: white; padding: 20px; display: inline-block; border-radius: 8px; box-shadow: 0px 2px 5px rgba(0,0,0,0.1);">
-        <h3>📊 Live Market Watch (Sample)</h3>
-        <p>RELIANCE: <span style="color: green; font-weight: bold;">₹2,945.50 (+1.2%)</span></p>
-        <p>TCS: <span style="color: green; font-weight: bold;">₹4,120.00 (+0.8%)</span></p>
-    </div>
-
-</body>
+  </head>
+  <body class="bg-slate-950 text-slate-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
