@@ -69,7 +69,7 @@ export default function Home() {
         <div className="relative max-w-2xl">
           <div className="flex items-center gap-2">
             <span className="chip bg-sky-500/10 text-sky-300">India · NSE</span>
-            <span className="chip bg-emerald-500/10 text-emerald-300">Simulated T-1 data</span>
+            <span className="chip bg-emerald-500/10 text-emerald-300">Live NSE prices</span>
           </div>
           <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
             One search. <span className="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">Pro-grade</span> stock intelligence.

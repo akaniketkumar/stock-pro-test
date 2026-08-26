@@ -51,7 +51,7 @@ export default function PremiumInsights() {
             <Help text="AI Conviction scores for the Nifty 50, powered by the 16-point forensic engine. The score combines technical trend, fundamentals, cash-flow quality and red-flag checks." />
           </h1>
           <p className="mt-1 text-sm text-slate-400">
-            AI Conviction Meter and deep reasoning on the Nifty 50 — refreshed daily with T-1 data.
+            AI Conviction Meter and deep reasoning on the Nifty 50 — with live NSE prices.
           </p>
         </div>
         <div className="flex items-center gap-2">

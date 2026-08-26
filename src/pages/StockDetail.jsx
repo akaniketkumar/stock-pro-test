@@ -106,7 +106,7 @@ export default function StockDetail() {
     ])
       .then(([detail, candleData, tech, fin, sh, docs]) => {
         if (cancelled) return
-        setStock(detail || { id, symbol: id, name: id })
+        setStock(detail || { notFound: true, reason: 'invalid', symbol: id, name: id })
         setCandles(candleData || [])
         setTechnical(tech)
         setFinancials(fin)
@@ -118,6 +118,33 @@ export default function StockDetail() {
   }, [id])
 
   if (loading) return <PageSkeleton />
+
+  // Real company check: don't render a stock page for a name that doesn't exist,
+  // and don't fake numbers when a real company's live price couldn't be fetched.
+  if (stock.notFound) {
+    const isInvalid = stock.reason !== 'unavailable'
+    return (
+      <div className="mx-auto flex max-w-2xl flex-col items-center justify-center px-4 py-24 text-center">
+        <div className="rounded-full bg-slate-800/60 p-4">
+          <svg className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h1 className="mt-4 text-xl font-bold text-slate-100">
+          {isInvalid ? `"${stock.symbol}" isn't a listed company` : `Live data unavailable for ${stock.name}`}
+        </h1>
+        <p className="mt-2 max-w-sm text-sm text-slate-500">
+          {isInvalid
+            ? "We couldn't find this symbol on NSE/BSE. Check the spelling or search for the company by name."
+            : "This is a real company, but we couldn't fetch a live price right now. Please try again in a moment."}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <a href="/" className="btn-primary">Back to Home</a>
+          <a href="/screener" className="btn-ghost">Open Screener</a>
+        </div>
+      </div>
+    )
+  }
 
   // 🧹 DATA SANITIZER: Kachra aur missing IDs ko yahi saaf kar do taaki andar crash na ho
   const safeQuarterly = Array.isArray(stock.quarterly) ? stock.quarterly.filter(q => q && q.id) : []

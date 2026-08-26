@@ -134,7 +134,7 @@ export default function SearchBar({ className = '', size = 'md' }) {
         <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-slate-700 bg-terminal-900 shadow-2xl animate-in fade-in duration-200">
           <div className="border-b border-slate-800 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 flex justify-between">
             <span>{results.length} result{results.length > 1 ? 's' : ''}</span>
-            <span className="text-sky-500/70">Live Data</span>
+            <span className="text-sky-500/70">NSE / BSE</span>
           </div>
           <ul className="max-h-80 overflow-auto">
             {results.map((stock, idx) => (

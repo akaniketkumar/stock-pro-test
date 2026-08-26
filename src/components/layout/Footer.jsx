@@ -75,8 +75,10 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-slate-300">Disclaimer</h4>
             <p className="mt-3 text-xs leading-relaxed text-slate-500">
-              Data shown is simulated for demonstration. StockPro does not provide investment advice. Markets are
-              volatile; invest at your own risk after consulting a SEBI-registered advisor.
+              Live prices are sourced from NSE via a third-party feed and may be delayed by a few minutes.
+              Financial statements, red-flag analysis, and conviction scores are model-generated estimates, not
+              official company filings. StockPro does not provide investment advice. Markets are volatile; invest
+              at your own risk after consulting a SEBI-registered advisor.
             </p>
           </div>
 

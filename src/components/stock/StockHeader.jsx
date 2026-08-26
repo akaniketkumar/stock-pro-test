@@ -78,8 +78,8 @@ export default function StockHeader({ stock }) {
         <Link to="/premium" className="btn-primary px-3 py-1.5 text-xs">
           Premium Analysis
         </Link>
-        <span className="chip text-slate-400">
-          Data: T-1 simulated · {formatPercent(stock.changePct)} today
+        <span className={`chip ${stock.isLive ? 'text-emerald-400' : 'text-amber-400'}`}>
+          {stock.isLive ? 'Live price · NSE' : 'Delayed price · not live'} · {formatPercent(stock.changePct)} today
         </span>
       </div>
     </div>

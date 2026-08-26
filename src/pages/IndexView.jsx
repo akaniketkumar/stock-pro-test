@@ -163,7 +163,7 @@ export default function IndexView() {
             <SectionTitle
               title={`${index.name} Constituents`}
               subtitle={`Top ${index.constituentCount} stocks in the index, ranked by market cap`}
-              right={<span className="chip bg-slate-800 text-slate-400">T-1 simulated</span>}
+              right={<span className="chip bg-slate-800 text-slate-400">Live NSE prices</span>}
             />
           </div>
           <div className="overflow-x-auto">

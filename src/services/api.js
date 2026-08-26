@@ -5,6 +5,7 @@ import news from '../data/news.json'
 import redFlags from '../data/redFlags.json'
 import stockDetails from '../data/stockDetails.json'
 import stockProfiles from '../data/stockProfiles.json'
+import { EXTRA_COMPANIES, SYMBOL_ALIASES } from '../data/companyList'
 
 import {
   deriveCandles,
@@ -21,67 +22,101 @@ import {
   deriveDocuments,
   derivePeers,
 } from './derivations'
-import { seededRand } from '../utils/random'
 
-const FMP_KEY = import.meta.env.VITE_FMP_API_KEY
 const API_LATENCY = 80
 
 function delay(ms = API_LATENCY) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-function getHash(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  return Math.abs(hash);
+// ---------------------------------------------------------------------------
+// Real-company resolution + live price fetching
+//
+// No random/fake data is ever generated for a symbol anymore. A stock is
+// only ever shown if it's a real, known NSE-listed company (from stocks.json
+// or companyList.js). If it isn't, the app says so instead of inventing one.
+// ---------------------------------------------------------------------------
+
+function normalizeSym(id) {
+  if (!id) return ''
+  let sym = String(id).toUpperCase().replace('.NS', '').replace('.BO', '').replace(/\s+/g, '')
+  if (SYMBOL_ALIASES[sym]) sym = SYMBOL_ALIASES[sym]
+  return sym
 }
 
-function getStockRow(id) {
-  if (!id) return null
-  const sym = id.toUpperCase().replace('.NS', '').replace('.BO', '').replace(/\s+/g, '')
+function findBaseCompany(sym) {
   const found = stocks.find((s) => s.id === sym || s.symbol === sym)
   if (found) return found
-
-  const hash = getHash(sym);
-  const price = 50 + (hash % 4000); 
-  const roe = 8 + (hash % 20);
-  
-  const changePct = ((hash % 40) - 20) / 10;
-  const change = (price * changePct) / 100;
-  
-  return {
-    id: sym,
-    symbol: sym,
-    name: id.toUpperCase(),
-    sector: 'Equity',
-    industry: 'Diversified',
-    price: parseFloat(price.toFixed(2)),
-    change: parseFloat(change.toFixed(2)),
-    changePct: parseFloat(changePct.toFixed(2)),
-    open: price,
-    dayHigh: price * 1.02,
-    dayLow: price * 0.98,
-    volume: 50000 + (hash % 2000000),
-    turnover: 50,
-    marketCap: 1000 + (hash % 90000),
-    pe: 12 + (hash % 40),
-    pb: 1 + (hash % 8),
-    roe: roe,
-    roce: roe + 3.5,
-    debtToEquity: 0.5,
-    freeCashFlow: 100,
-    netProfit: 200,
-    revenueGrowth: 10,
-    profitGrowth: 10,
-    fiftyTwoWHigh: price * 1.2,
-    fiftyTwoWLow: price * 0.8,
-    promoterHolding: 50,
-    fiiHolding: 15,
-    diiHolding: 15,
-    publicHolding: 20,
-    promoterPledge: 0,
-    rating: 'HOLD'
+  const extra = EXTRA_COMPANIES[sym]
+  if (extra) {
+    return {
+      id: sym,
+      symbol: sym,
+      name: extra.name,
+      sector: extra.sector,
+      industry: extra.sector,
+      exchange: 'NSE',
+    }
   }
+  return null
+}
+
+function compact(obj) {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null))
+}
+
+async function fetchLiveQuote(sym) {
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 4000)
+    const res = await fetch(`/api/quote?symbol=${encodeURIComponent(sym)}`, { signal: controller.signal })
+    clearTimeout(timer)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data || !data.success) return null
+    return compact({
+      price: data.price,
+      change: data.change,
+      changePct: data.changePct,
+      open: data.open,
+      dayHigh: data.dayHigh,
+      dayLow: data.dayLow,
+      fiftyTwoWHigh: data.fiftyTwoWHigh,
+      fiftyTwoWLow: data.fiftyTwoWLow,
+      volume: data.volume,
+    })
+  } catch {
+    return null
+  }
+}
+
+// Resolves a symbol into a real stock row with a live price where possible.
+// status: 'ok' | 'invalid' (not a real company) | 'unavailable' (real company, no price right now)
+async function resolveStock(id) {
+  const sym = normalizeSym(id)
+  if (!sym) return { stock: null, status: 'invalid', sym }
+
+  const base = findBaseCompany(sym)
+  if (!base) return { stock: null, status: 'invalid', sym }
+
+  const live = await fetchLiveQuote(sym)
+  if (live) {
+    return { stock: { ...base, ...live, id: sym, symbol: sym, isLive: true }, status: 'ok' }
+  }
+  if (typeof base.price === 'number') {
+    return { stock: { ...base, id: sym, symbol: sym, isLive: false }, status: 'ok' }
+  }
+  return { stock: null, status: 'unavailable', sym, name: base.name }
+}
+
+async function getStockRow(id) {
+  const { stock } = await resolveStock(id)
+  return stock
+}
+
+async function withLivePrices(baseStocks) {
+  const rows = await Promise.all(baseStocks.map((s) => getStockRow(s.id)))
+  return rows.filter(Boolean)
 }
 
 function deriveBoardMeetings(stock) {
@@ -114,67 +149,30 @@ export async function getIndices() {
 
 export async function getAllStocks() {
   await delay(60)
-  return stocks
+  return withLivePrices(stocks)
 }
+
+// Real companies only — the curated 27 plus the extended NSE list. No fake
+// entries are ever synthesized for an unmatched search anymore.
+const SEARCH_UNIVERSE = [
+  ...stocks,
+  ...Object.entries(EXTRA_COMPANIES).map(([symbol, info]) => ({
+    id: symbol,
+    symbol,
+    name: info.name,
+    sector: info.sector,
+  })),
+]
 
 export async function searchStocks(query) {
   const q = (query || '').trim().toLowerCase()
   if (!q) return []
 
-  const localMatches = stocks.filter(
+  const matches = SEARCH_UNIVERSE.filter(
     (s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
   )
 
-  let combined = [...localMatches]
-
-  if (FMP_KEY && localMatches.length < 5) {
-    try {
-      const res = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query)}&limit=10&apikey=${FMP_KEY}`)
-      const data = await res.json()
-      if (Array.isArray(data)) {
-        const apiMatches = data
-          .filter(item => item.currency === 'INR' || (item.exchangeShortName && ['NSE', 'BSE', 'INDEX'].includes(item.exchangeShortName)))
-          .map(item => {
-            const cleanSym = item.symbol.replace('.NS', '').replace('.BO', '')
-            return {
-              id: cleanSym,
-              symbol: cleanSym,
-              name: item.name || cleanSym,
-              sector: 'Equity',
-              price: item.price || 0,
-              changePct: 0,
-              marketCap: 0
-            }
-          })
-
-        for (const item of apiMatches) {
-          if (!combined.some(c => c.symbol.toUpperCase() === item.symbol.toUpperCase())) {
-            combined.push(item)
-          }
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  if (combined.length === 0) {
-    const cleanQuery = query.toUpperCase().trim()
-    const syntheticSym = cleanQuery.replace(/\s+/g, '').substring(0, 10)
-    const hashPrice = 50 + (getHash(syntheticSym) % 4000)
-    
-    combined.push({
-      id: syntheticSym,
-      symbol: syntheticSym,
-      name: cleanQuery,
-      sector: 'Equity',
-      price: hashPrice,
-      changePct: 0,
-      marketCap: 1000 + (getHash(syntheticSym) % 90000)
-    })
-  }
-
-  return combined.slice(0, 8)
+  return matches.slice(0, 8)
 }
 
 export async function getStock(id) {
@@ -189,19 +187,22 @@ export async function getStockNews(id) {
 
 export async function getCandles(id) {
   await delay(60)
-  const stock = getStockRow(id)
+  const stock = await getStockRow(id)
+  if (!stock) return []
   return deriveCandles(stock)
 }
 
 export async function getTechnicalIndicators(id) {
   await delay(60)
-  const stock = getStockRow(id)
+  const stock = await getStockRow(id)
+  if (!stock) return null
   return deriveTechnical(stock)
 }
 
 export async function getFinancialStatements(id) {
   await delay(60)
-  const stock = getStockRow(id)
+  const stock = await getStockRow(id)
+  if (!stock) return null
   const balanceSheet = deriveBalanceSheet(stock)
   return {
     quarterly: deriveQuarterlyDetailed(stock),
@@ -215,7 +216,8 @@ export async function getFinancialStatements(id) {
 
 export async function getShareholderAnalytics(id) {
   await delay(60)
-  const stock = getStockRow(id)
+  const stock = await getStockRow(id)
+  if (!stock) return null
   return {
     shareholders: deriveShareholders(stock),
     holdings: deriveHoldings(stock, 6),
@@ -225,20 +227,22 @@ export async function getShareholderAnalytics(id) {
 
 export async function getCorporateDocuments(id) {
   await delay(60)
-  const stock = getStockRow(id)
+  const stock = await getStockRow(id)
+  if (!stock) return null
   return deriveDocuments(stock)
 }
 
 export async function getPeers(id) {
   await delay(60)
-  const stock = getStockRow(id)
+  const stock = await getStockRow(id)
+  if (!stock) return []
   return derivePeers(stock, stocks)
 }
 
 export async function getComparison(ids = []) {
   await delay(60)
-  return ids
-    .map((id) => getStockRow(id))
+  const rows = await Promise.all(ids.map((id) => getStockRow(id)))
+  return rows
     .filter(Boolean)
     .map((s) => {
       const q = deriveQuarterlyDetailed(s, 2)[0]
@@ -256,12 +260,20 @@ const FALLBACK_CONVICTION = {
 
 export async function getStockDetail(id) {
   await delay(60)
-  const cleanSym = (id || '').toUpperCase().replace('.NS', '').replace('.BO', '').replace(/\s+/g, '')
-  let stock = getStockRow(cleanSym)
+  const { stock, status, name, sym } = await resolveStock(id)
 
-  const redFlagResults = getRedFlagResults(cleanSym)
+  if (!stock) {
+    return {
+      notFound: true,
+      reason: status, // 'invalid' = not a real company, 'unavailable' = real but no price right now
+      symbol: sym,
+      name: name || sym,
+    }
+  }
+
+  const redFlagResults = getRedFlagResults(stock.id)
   const conviction = deriveConviction(stock, redFlagResults || [])
-  const profile = stockProfiles[cleanSym] || {
+  const profile = stockProfiles[stock.id] || {
     about: `${stock.name || stock.symbol} is an active listed company operating in the Indian Equity Markets.`,
     keyPoints: [
       `Core industry: ${stock.industry || 'Diversified'}.`,
@@ -272,6 +284,7 @@ export async function getStockDetail(id) {
 
   return {
     ...stock,
+    notFound: false,
     about: profile.about,
     keyPoints: Array.isArray(profile.keyPoints) ? profile.keyPoints : [],
     pros: Array.isArray(profile.pros) ? profile.pros : [],
@@ -289,7 +302,7 @@ export async function getStockDetail(id) {
 
 export async function screenStocks(filters = {}) {
   await delay(60)
-  return stocks
+  return withLivePrices(stocks)
 }
 
 export async function getIPOs() {
@@ -303,31 +316,38 @@ const BANKNIFTY_SYMBOLS = ['HDFCBANK', 'ICICIBANK', 'AXISBANK', 'KOTAKBANK', 'SB
 const MIDCAP_SYMBOLS = ["MAXHEALTH", "CGPOWER", "TVSMOTOR", "CUMMINSIND", "TIINDIA", "DIXON", "POLICYBKR", "LUPIN", "SUNDARMFIN", "VOLTAS", "PRESTIGE", "KPITTECH", "PERSISTENT", "AUBANK", "FEDERALBNK", "MRF", "YESBANK", "IDFCFIRSTB", "ASHOKLEY", "OBEROIRLTY"];
 const SMALLCAP_SYMBOLS = ["BSE", "SUZLON", "KALYANKJIL", "SONACOMS", "ANGELONE", "APARINDS", "CDSL", "MCX", "KEI", "RADICO", "CYIENT", "GLENMARK", "CHAMBLFERT", "WELCORP", "CAMS", "JBCHEPHARM", "PVRINOX", "RBLBANK", "UTIAMC", "HAPPSTMNDS"];
 
-function getConstituents(indexId) {
-  let symbols = []
+function getConstituentSymbols(indexId) {
   switch (indexId) {
-    case 'NIFTY50': symbols = NIFTY50_SYMBOLS; break;
-    case 'SENSEX': symbols = SENSEX_SYMBOLS; break;
-    case 'BANKNIFTY': symbols = BANKNIFTY_SYMBOLS; break;
-    case 'MIDCAP': symbols = MIDCAP_SYMBOLS; break;
-    case 'SMALLCAP': symbols = SMALLCAP_SYMBOLS; break;
-    default: symbols = NIFTY50_SYMBOLS.slice(0, 10);
+    case 'NIFTY50': return NIFTY50_SYMBOLS;
+    case 'SENSEX': return SENSEX_SYMBOLS;
+    case 'BANKNIFTY': return BANKNIFTY_SYMBOLS;
+    case 'MIDCAP': return MIDCAP_SYMBOLS;
+    case 'SMALLCAP': return SMALLCAP_SYMBOLS;
+    default: return NIFTY50_SYMBOLS.slice(0, 10);
   }
-  return symbols.map(sym => getStockRow(sym)).filter(Boolean)
+}
+
+async function getConstituents(indexId) {
+  const symbols = getConstituentSymbols(indexId)
+  const rows = await Promise.all(symbols.map((sym) => getStockRow(sym)))
+  return rows.filter(Boolean)
 }
 
 export async function getIndex(id) {
   await delay(60)
   const meta = indices.find((ix) => ix.id === id)
   if (!meta) return null
-  const constituents = getConstituents(id)
+  const constituents = await getConstituents(id)
   return { ...meta, constituentCount: constituents.length, constituents }
 }
 
 export async function getPremiumInsights() {
   await delay(60)
   const featured = ['RELIANCE', 'TCS', 'HAL', 'SBIN', 'TATAMOTORS', 'HDFCBANK', 'SUNPHARMA', 'LT']
-  return featured.map((id) => getStockRow(id)).filter(Boolean).map((s) => ({ ...s, conviction: deriveConviction(s, getRedFlagResults(s.id) || []) }))
+  const rows = await Promise.all(featured.map((id) => getStockRow(id)))
+  return rows
+    .filter(Boolean)
+    .map((s) => ({ ...s, conviction: deriveConviction(s, getRedFlagResults(s.id) || []) }))
 }
 
 export default {

@@ -229,7 +229,7 @@ export default function Screener() {
                 </span>
               </h2>
               <div className="flex items-center gap-2 text-xs text-slate-500">
-                <span className="chip">T-1 simulated</span>
+                <span className="chip">Live NSE prices</span>
                 <span className="chip">Nifty 50</span>
               </div>
             </div>
