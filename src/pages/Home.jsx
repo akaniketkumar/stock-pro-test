@@ -39,14 +39,36 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     Promise.all([getAllStocks(), getIndices(), getIPOs()])
       .then(([s, ix, ip]) => {
+        if (cancelled) return
         setStocks(s)
         setIndices(ix)
         setIpos(ip)
         setLoading(false)
       })
       .catch(() => setLoading(false))
+
+    // Auto-refresh live prices every 30s and whenever the tab regains focus,
+    // without showing the full-page loading spinner again.
+    function refreshPrices() {
+      getAllStocks()
+        .then((s) => {
+          if (!cancelled) setStocks(s)
+        })
+        .catch(() => {})
+    }
+    const interval = setInterval(refreshPrices, 30000)
+    function onVisible() {
+      if (document.visibilityState === 'visible') refreshPrices()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [])
 
   if (loading) return <Spinner label="Loading markets..." className="py-32" />

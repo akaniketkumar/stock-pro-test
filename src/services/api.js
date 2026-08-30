@@ -44,6 +44,52 @@ function normalizeSym(id) {
   return sym
 }
 
+// ---------------------------------------------------------------------------
+// Full NSE company directory (2000+ real, live-listed companies)
+//
+// Fetched once from /api/companies (which itself pulls NSE's own official
+// list server-side) and cached in memory + sessionStorage for the rest of
+// the browser session. This is what makes search cover the whole exchange
+// instead of a small hand-picked list, while stocks.json / EXTRA_COMPANIES
+// above still provide the rich, curated data for well-known names.
+// ---------------------------------------------------------------------------
+let fullDirectory = null
+let fullDirectoryPromise = null
+
+async function ensureDirectory() {
+  if (fullDirectory) return fullDirectory
+  if (fullDirectoryPromise) return fullDirectoryPromise
+
+  fullDirectoryPromise = (async () => {
+    try {
+      const cached = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('stockpro_nse_directory') : null
+      if (cached) {
+        fullDirectory = JSON.parse(cached)
+        return fullDirectory
+      }
+    } catch {
+      // ignore cache read errors, fall through to network fetch
+    }
+    try {
+      const res = await fetch('/api/companies')
+      const data = await res.json()
+      fullDirectory = data && data.success && Array.isArray(data.companies) ? data.companies : []
+      try {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('stockpro_nse_directory', JSON.stringify(fullDirectory))
+        }
+      } catch {
+        // sessionStorage may be full or unavailable — not critical
+      }
+    } catch {
+      fullDirectory = []
+    }
+    return fullDirectory
+  })()
+
+  return fullDirectoryPromise
+}
+
 function findBaseCompany(sym) {
   const found = stocks.find((s) => s.id === sym || s.symbol === sym)
   if (found) return found
@@ -56,6 +102,21 @@ function findBaseCompany(sym) {
       sector: extra.sector,
       industry: extra.sector,
       exchange: 'NSE',
+    }
+  }
+  // Fall back to the full NSE directory if it has loaded by now — covers
+  // the other 2000+ real companies beyond our curated list.
+  if (fullDirectory) {
+    const dirMatch = fullDirectory.find((c) => c.symbol === sym)
+    if (dirMatch) {
+      return {
+        id: sym,
+        symbol: sym,
+        name: dirMatch.name,
+        sector: 'Equity',
+        industry: 'Diversified',
+        exchange: 'NSE',
+      }
     }
   }
   return null
@@ -96,7 +157,13 @@ async function resolveStock(id) {
   const sym = normalizeSym(id)
   if (!sym) return { stock: null, status: 'invalid', sym }
 
-  const base = findBaseCompany(sym)
+  let base = findBaseCompany(sym)
+  if (!base) {
+    // Not in the curated lists — make sure the full NSE directory has been
+    // loaded before giving up, so any real listed company can resolve.
+    await ensureDirectory()
+    base = findBaseCompany(sym)
+  }
   if (!base) return { stock: null, status: 'invalid', sym }
 
   const live = await fetchLiveQuote(sym)
@@ -168,11 +235,18 @@ export async function searchStocks(query) {
   const q = (query || '').trim().toLowerCase()
   if (!q) return []
 
-  const matches = SEARCH_UNIVERSE.filter(
+  await ensureDirectory()
+
+  const curatedMatches = SEARCH_UNIVERSE.filter(
     (s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
   )
 
-  return matches.slice(0, 8)
+  const seen = new Set(curatedMatches.map((s) => s.id))
+  const directoryMatches = (fullDirectory || [])
+    .filter((c) => !seen.has(c.symbol) && (c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)))
+    .map((c) => ({ id: c.symbol, symbol: c.symbol, name: c.name, sector: 'Equity' }))
+
+  return [...curatedMatches, ...directoryMatches].slice(0, 8)
 }
 
 export async function getStock(id) {

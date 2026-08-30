@@ -117,6 +117,31 @@ export default function StockDetail() {
     return () => { cancelled = true }
   }, [id])
 
+  // Auto-refresh just the live price fields every 30s, and also the moment
+  // the tab regains focus — so the price updates on its own instead of
+  // needing a manual page reload.
+  useEffect(() => {
+    let cancelled = false
+    function refreshPrice() {
+      getStockDetail(id)
+        .then((detail) => {
+          if (cancelled || !detail) return
+          setStock((prev) => (prev ? { ...prev, ...detail, quarterly: prev.quarterly, boardMeetings: prev.boardMeetings } : prev))
+        })
+        .catch(() => {})
+    }
+    const interval = setInterval(refreshPrice, 30000)
+    function onVisible() {
+      if (document.visibilityState === 'visible') refreshPrice()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [id])
+
   if (loading) return <PageSkeleton />
 
   // Real company check: don't render a stock page for a name that doesn't exist,
@@ -207,7 +232,7 @@ export default function StockDetail() {
         </div>
 
         <div className="card p-4">
-          <SectionTitle title="Shareholding Pattern" subtitle="Promoters, FII, DII and public with pledge tracking" />
+          <SectionTitle title="Shareholding Pattern" subtitle="Promoters, FII, DII and public with pledge tracking · modeled estimate, not from live exchange filings" />
           <AutoHeal name="Shareholding"><ShareholdingSection stock={safeStock} /></AutoHeal>
         </div>
       </div>
@@ -218,7 +243,7 @@ export default function StockDetail() {
         </AutoHeal>
       </SectionAnchor>
 
-      <SectionAnchor id="financials" title="Financial Statements" subtitle="Quarterly results, multi-year P&L, balance sheet, cash flows">
+      <SectionAnchor id="financials" title="Financial Statements" subtitle="Quarterly results, multi-year P&L, balance sheet, cash flows · modeled estimate, not official filings">
         <AutoHeal name="Financials">
           {financials ? <FinancialStatements data={financials} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Financial statements compiling...</div>}
         </AutoHeal>
@@ -235,7 +260,7 @@ export default function StockDetail() {
       </SectionAnchor>
 
       <div className="card p-4">
-        <SectionTitle title="Quarterly Results" subtitle="Latest four quarters of profit / loss performance" />
+        <SectionTitle title="Quarterly Results" subtitle="Latest four quarters of profit / loss performance · modeled estimate, not from official filings" />
         <AutoHeal name="Quarterly Results">
           {safeStock.quarterly && safeStock.quarterly.length > 0 ? <QuarterlySection stock={safeStock} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Quarterly results updating...</div>}
         </AutoHeal>
