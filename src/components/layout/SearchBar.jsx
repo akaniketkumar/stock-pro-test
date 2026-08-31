@@ -159,7 +159,7 @@ export default function SearchBar({ className = '', size = 'md' }) {
                   <div className="flex items-center gap-3 text-right">
                     <div>
                       <div className="font-mono text-sm text-slate-100">{formatPrice(stock.price)}</div>
-                      {stock.changePct !== 0 && (
+                      {stock.changePct != null && (
                         <div className={`font-mono text-xs ${changeClass(stock.changePct)}`}>
                           {stock.changePct > 0 ? '+' : ''}{stock.changePct}%
                         </div>

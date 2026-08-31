@@ -35,6 +35,19 @@ export default function IndexView() {
     }
   }, [id])
 
+  // Quietly refresh constituent live prices every 30s.
+  useEffect(() => {
+    let cancelled = false
+    const interval = setInterval(async () => {
+      const res = await getIndex(id)
+      if (!cancelled && res) setIndex(res)
+    }, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [id])
+
   const sorted = useMemo(() => {
     if (!index || !index.constituents) return []
     const arr = [...index.constituents]

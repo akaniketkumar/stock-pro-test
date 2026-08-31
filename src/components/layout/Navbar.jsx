@@ -38,11 +38,16 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    let mounted = true;
-    getIndices().then((data) => {
-      if (mounted && data) setIndices(data)
-    }).catch(() => {})
-    return () => { mounted = false }
+    let mounted = true
+    const load = () => {
+      getIndices().then((data) => {
+        if (mounted && data) setIndices(data)
+      }).catch(() => {})
+    }
+    load()
+    // Refresh the ticker bar every 30s so prices update live without a page reload.
+    const interval = setInterval(load, 30000)
+    return () => { mounted = false; clearInterval(interval) }
   }, [])
 
   const tickerItems = indices.slice(0, 6)

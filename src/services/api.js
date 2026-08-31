@@ -209,9 +209,44 @@ function getRedFlagResults(stockId) {
   return redFlags.stocks[stockId] || null
 }
 
+// Real Yahoo Finance tickers for the indices we can live-fetch for free.
+// Gold (MCX) has no equivalent free real-time source, so it stays as the
+// last known static value rather than showing an unrelated foreign price.
+const INDEX_YAHOO_SYMBOLS = {
+  NIFTY50: '^NSEI',
+  SENSEX: '^BSESN',
+  BANKNIFTY: '^NSEBANK',
+  MIDCAP: 'NIFTY_MIDCAP_100.NS',
+  SMALLCAP: '^CNXSC',
+  USDINR: 'INR=X',
+  VIX: '^INDIAVIX',
+}
+
+async function fetchLiveIndexQuote(yahooSymbol) {
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 4000)
+    const res = await fetch(`/api/quote?yahooSymbol=${encodeURIComponent(yahooSymbol)}`, { signal: controller.signal })
+    clearTimeout(timer)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data || !data.success) return null
+    return { value: data.price, change: data.change, changePct: data.changePct }
+  } catch {
+    return null
+  }
+}
+
 export async function getIndices() {
-  await delay(60)
-  return indices
+  const rows = await Promise.all(
+    indices.map(async (ix) => {
+      const yahooSymbol = INDEX_YAHOO_SYMBOLS[ix.id]
+      if (!yahooSymbol) return ix // e.g. Gold (MCX) — no free live source, keep static
+      const live = await fetchLiveIndexQuote(yahooSymbol)
+      return live ? { ...ix, ...live, isLive: true } : ix
+    })
+  )
+  return rows
 }
 
 export async function getAllStocks() {
@@ -259,17 +294,70 @@ export async function getStockNews(id) {
   return news[id] || []
 }
 
+// Real historical daily candles from /api/candles (Yahoo Finance chart data).
+// Falls back to the modelled candles only if the live fetch genuinely fails,
+// so the chart always matches the actual company and its real price moves.
+async function fetchRealCandles(sym, range = '1y') {
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 6000)
+    const res = await fetch(`/api/candles?symbol=${encodeURIComponent(sym)}&range=${range}`, {
+      signal: controller.signal,
+    })
+    clearTimeout(timer)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data || !data.success || !Array.isArray(data.candles) || data.candles.length === 0) return null
+    return data.candles
+  } catch {
+    return null
+  }
+}
+
 export async function getCandles(id) {
-  await delay(60)
   const stock = await getStockRow(id)
   if (!stock) return []
+  const real = await fetchRealCandles(stock.id)
+  if (real) return real
+  await delay(60)
   return deriveCandles(stock)
 }
 
+function sma(values, period) {
+  if (values.length < period) return null
+  let sum = 0
+  for (let i = values.length - period; i < values.length; i += 1) sum += values[i]
+  return sum / period
+}
+
 export async function getTechnicalIndicators(id) {
-  await delay(60)
   const stock = await getStockRow(id)
   if (!stock) return null
+
+  const real = await fetchRealCandles(stock.id, '2y')
+  if (real && real.length >= 30) {
+    const closes = real.map((c) => c.close)
+    const price = stock.price ?? closes[closes.length - 1]
+    const dma30 = sma(closes, 30)
+    const dma50 = sma(closes, 50)
+    const dma200 = sma(closes, 200)
+    const pos = (dma) => (dma === null ? 'na' : price >= dma ? 'above' : 'below')
+    return {
+      price,
+      dma30,
+      dma50,
+      dma200,
+      above30: pos(dma30),
+      above50: pos(dma50),
+      above200: pos(dma200),
+      fiftyTwoWHigh: stock.fiftyTwoWHigh,
+      fiftyTwoWLow: stock.fiftyTwoWLow,
+      pctFromHigh: stock.fiftyTwoWHigh ? Math.round(((stock.fiftyTwoWHigh - price) / stock.fiftyTwoWHigh) * 100) : null,
+      pctFromLow: stock.fiftyTwoWLow ? Math.round(((price - stock.fiftyTwoWLow) / stock.fiftyTwoWLow) * 100) : null,
+    }
+  }
+
+  await delay(60)
   return deriveTechnical(stock)
 }
 

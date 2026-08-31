@@ -23,7 +23,7 @@ import QuarterlySection from '../components/stock/QuarterlySection'
 import BoardMeetings from '../components/stock/BoardMeetings'
 import RedFlagAnalyzer from '../components/stock/RedFlagAnalyzer'
 import ConvictionMeter from '../components/charts/ConvictionMeter'
-import TradingViewChart from '../components/charts/TradingViewChart'
+import CandleChart from '../components/charts/CandleChart'
 import LockedOverlay from '../components/ui/LockedOverlay'
 import SectionTitle, { PremiumBadge } from '../components/ui/SectionTitle'
 import { Skeleton } from '../components/ui/Loading'
@@ -205,13 +205,13 @@ export default function StockDetail() {
       {/* 🚀 PRO CHART SECTION: Full Width & Extended Height */}
       <div className="space-y-6">
         <div className="card overflow-hidden p-4">
-          <SectionTitle title="Advanced Chart" subtitle="Candlestick, volume, SMA 20/50, MACD & RSI" />
-          <div className="mt-4 h-[600px] w-full">
+          <SectionTitle title="Price Chart" subtitle="Real daily candles from NSE, with volume and SMA 20/50" />
+          <div className="mt-4 w-full">
             <AutoHeal name="Chart">
               {candles && candles.length > 0 ? (
-                <TradingViewChart symbol={safeStock.symbol} candles={candles} />
+                <CandleChart candles={candles} height={520} />
               ) : (
-                <div className="flex h-full w-full items-center justify-center rounded-lg border border-slate-800 bg-slate-800/20 text-sm text-slate-500">Chart data updating...</div>
+                <div className="flex h-[400px] w-full items-center justify-center rounded-lg border border-slate-800 bg-slate-800/20 text-sm text-slate-500">Chart data updating...</div>
               )}
             </AutoHeal>
           </div>

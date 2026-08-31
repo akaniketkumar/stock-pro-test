@@ -83,6 +83,19 @@ export default function Screener() {
     }
   }, [filters])
 
+  // Quietly refresh live prices every 30s without disturbing filters/sort/scroll.
+  useEffect(() => {
+    let cancelled = false
+    const interval = setInterval(async () => {
+      const res = await screenStocks(filters)
+      if (!cancelled) setResults(res)
+    }, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [filters])
+
   const sorted = useMemo(() => {
     const arr = [...results]
     arr.sort((a, b) => {
