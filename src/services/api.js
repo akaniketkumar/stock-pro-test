@@ -164,9 +164,21 @@ async function resolveStock(id) {
     await ensureDirectory()
     base = findBaseCompany(sym)
   }
-  if (!base) return { stock: null, status: 'invalid', sym }
 
   const live = await fetchLiveQuote(sym)
+
+  if (!base) {
+    // Still unknown to every local list — but if Yahoo Finance itself
+    // confirms a real, currently-traded price for this exact symbol, that
+    // IS proof it's a real listed company (a fake/garbage symbol simply
+    // returns no data), so accept it using the live-fetched name.
+    if (live && typeof live.price === 'number') {
+      base = { id: sym, symbol: sym, name: live.name || sym, sector: 'Equity', industry: 'Diversified', exchange: 'NSE' }
+    } else {
+      return { stock: null, status: 'invalid', sym }
+    }
+  }
+
   if (live) {
     return { stock: { ...base, ...live, id: sym, symbol: sym, isLive: true }, status: 'ok' }
   }
@@ -270,18 +282,40 @@ export async function searchStocks(query) {
   const q = (query || '').trim().toLowerCase()
   if (!q) return []
 
-  await ensureDirectory()
-
   const curatedMatches = SEARCH_UNIVERSE.filter(
     (s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
   )
-
   const seen = new Set(curatedMatches.map((s) => s.id))
-  const directoryMatches = (fullDirectory || [])
-    .filter((c) => !seen.has(c.symbol) && (c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)))
-    .map((c) => ({ id: c.symbol, symbol: c.symbol, name: c.name, sector: 'Equity' }))
 
-  return [...curatedMatches, ...directoryMatches].slice(0, 8)
+  // Primary source: live per-query Yahoo Finance search (api/search.js).
+  // This covers thousands of real NSE companies and doesn't depend on
+  // NSE's own archive servers, which sometimes block cloud IPs.
+  let liveMatches = []
+  try {
+    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+    const data = await res.json()
+    if (data && data.success && Array.isArray(data.companies)) {
+      liveMatches = data.companies
+        .filter((c) => !seen.has(c.symbol))
+        .map((c) => ({ id: c.symbol, symbol: c.symbol, name: c.name, sector: c.sector || 'Equity' }))
+    }
+  } catch {
+    // network hiccup — fall through to the secondary directory below
+  }
+
+  liveMatches.forEach((m) => seen.add(m.id))
+
+  // Secondary fallback: the bulk NSE directory (only used if Yahoo search
+  // above returned nothing, e.g. a network error).
+  let directoryMatches = []
+  if (liveMatches.length === 0) {
+    await ensureDirectory()
+    directoryMatches = (fullDirectory || [])
+      .filter((c) => !seen.has(c.symbol) && (c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)))
+      .map((c) => ({ id: c.symbol, symbol: c.symbol, name: c.name, sector: 'Equity' }))
+  }
+
+  return [...curatedMatches, ...liveMatches, ...directoryMatches].slice(0, 10)
 }
 
 export async function getStock(id) {
@@ -314,10 +348,10 @@ async function fetchRealCandles(sym, range = '1y') {
   }
 }
 
-export async function getCandles(id) {
+export async function getCandles(id, range = '1y') {
   const stock = await getStockRow(id)
   if (!stock) return []
-  const real = await fetchRealCandles(stock.id)
+  const real = await fetchRealCandles(stock.id, range)
   if (real) return real
   await delay(60)
   return deriveCandles(stock)
@@ -328,6 +362,103 @@ function sma(values, period) {
   let sum = 0
   for (let i = values.length - period; i < values.length; i += 1) sum += values[i]
   return sum / period
+}
+
+function ema(values, period) {
+  if (values.length < period) return values.map(() => null)
+  const k = 2 / (period + 1)
+  const out = new Array(values.length).fill(null)
+  let prev = values.slice(0, period).reduce((a, b) => a + b, 0) / period
+  out[period - 1] = prev
+  for (let i = period; i < values.length; i += 1) {
+    prev = values[i] * k + prev * (1 - k)
+    out[i] = prev
+  }
+  return out
+}
+
+function smaSeries(values, period) {
+  const out = new Array(values.length).fill(null)
+  for (let i = period - 1; i < values.length; i += 1) {
+    let sum = 0
+    for (let j = i - period + 1; j <= i; j += 1) sum += values[j]
+    out[i] = sum / period
+  }
+  return out
+}
+
+function computeRSI(closes, period = 14) {
+  if (closes.length < period + 1) return null
+  let gains = 0
+  let losses = 0
+  for (let i = 1; i <= period; i += 1) {
+    const diff = closes[i] - closes[i - 1]
+    if (diff > 0) gains += diff
+    else losses -= diff
+  }
+  let avgGain = gains / period
+  let avgLoss = losses / period
+  for (let i = period + 1; i < closes.length; i += 1) {
+    const diff = closes[i] - closes[i - 1]
+    const gain = diff > 0 ? diff : 0
+    const loss = diff < 0 ? -diff : 0
+    avgGain = (avgGain * (period - 1) + gain) / period
+    avgLoss = (avgLoss * (period - 1) + loss) / period
+  }
+  if (avgLoss === 0) return 100
+  const rs = avgGain / avgLoss
+  return 100 - 100 / (1 + rs)
+}
+
+function computeMACD(closes) {
+  if (closes.length < 35) return null
+  const ema12 = ema(closes, 12)
+  const ema26 = ema(closes, 26)
+  const macdLine = closes.map((_, i) => (ema12[i] != null && ema26[i] != null ? ema12[i] - ema26[i] : null))
+  const macdValues = macdLine.filter((v) => v != null)
+  const signalSeries = ema(macdValues, 9)
+  const signal = signalSeries[signalSeries.length - 1]
+  const macd = macdLine[macdLine.length - 1]
+  return { macd, signal, histogram: macd != null && signal != null ? macd - signal : null }
+}
+
+function computeStochastic(candles, period = 14) {
+  if (candles.length < period) return null
+  const recent = candles.slice(-period)
+  const high = Math.max(...recent.map((c) => c.high))
+  const low = Math.min(...recent.map((c) => c.low))
+  const close = candles[candles.length - 1].close
+  if (high === low) return 50
+  return ((close - low) / (high - low)) * 100
+}
+
+function computeWilliamsR(candles, period = 14) {
+  const stoch = computeStochastic(candles, period)
+  return stoch === null ? null : stoch - 100
+}
+
+function computeROC(closes, period = 12) {
+  if (closes.length < period + 1) return null
+  const past = closes[closes.length - 1 - period]
+  const now = closes[closes.length - 1]
+  if (!past) return null
+  return ((now - past) / past) * 100
+}
+
+function computeCCI(candles, period = 20) {
+  if (candles.length < period) return null
+  const recent = candles.slice(-period)
+  const typicalPrices = recent.map((c) => (c.high + c.low + c.close) / 3)
+  const smaTP = typicalPrices.reduce((a, b) => a + b, 0) / period
+  const meanDev = typicalPrices.reduce((a, b) => a + Math.abs(b - smaTP), 0) / period
+  const lastTP = typicalPrices[typicalPrices.length - 1]
+  if (meanDev === 0) return 0
+  return (lastTP - smaTP) / (0.015 * meanDev)
+}
+
+function maVerdict(price, ma) {
+  if (ma == null) return 'neutral'
+  return price > ma ? 'buy' : price < ma ? 'sell' : 'neutral'
 }
 
 export async function getTechnicalIndicators(id) {
@@ -342,6 +473,57 @@ export async function getTechnicalIndicators(id) {
     const dma50 = sma(closes, 50)
     const dma200 = sma(closes, 200)
     const pos = (dma) => (dma === null ? 'na' : price >= dma ? 'above' : 'below')
+
+    // --- Moving averages table (SMA + EMA across common periods) ---
+    const maPeriods = [10, 20, 30, 50, 100, 200]
+    const movingAverages = maPeriods
+      .map((p) => {
+        if (closes.length < p) return null
+        const smaVal = sma(closes, p)
+        const emaVal = ema(closes, p).at(-1)
+        return {
+          period: p,
+          sma: smaVal,
+          ema: emaVal,
+          smaVerdict: maVerdict(price, smaVal),
+          emaVerdict: maVerdict(price, emaVal),
+        }
+      })
+      .filter(Boolean)
+
+    // --- Oscillators table ---
+    const rsi14 = computeRSI(closes, 14)
+    const macd = computeMACD(closes)
+    const stochK = computeStochastic(real, 14)
+    const williamsR = computeWilliamsR(real, 14)
+    const roc = computeROC(closes, 12)
+    const cci = computeCCI(real, 20)
+
+    const rsiVerdict = rsi14 == null ? 'neutral' : rsi14 > 70 ? 'sell' : rsi14 < 30 ? 'buy' : 'neutral'
+    const macdVerdict = macd?.histogram == null ? 'neutral' : macd.histogram > 0 ? 'buy' : 'sell'
+    const stochVerdict = stochK == null ? 'neutral' : stochK > 80 ? 'sell' : stochK < 20 ? 'buy' : 'neutral'
+    const williamsVerdict = williamsR == null ? 'neutral' : williamsR > -20 ? 'sell' : williamsR < -80 ? 'buy' : 'neutral'
+    const rocVerdict = roc == null ? 'neutral' : roc > 0 ? 'buy' : roc < 0 ? 'sell' : 'neutral'
+    const cciVerdict = cci == null ? 'neutral' : cci > 100 ? 'sell' : cci < -100 ? 'buy' : 'neutral'
+
+    const oscillators = [
+      { label: 'RSI (14)', value: rsi14, verdict: rsiVerdict, digits: 2 },
+      { label: 'Stochastic %K (14)', value: stochK, verdict: stochVerdict, digits: 2 },
+      { label: 'Williams %R (14)', value: williamsR, verdict: williamsVerdict, digits: 2 },
+      { label: 'CCI (20)', value: cci, verdict: cciVerdict, digits: 2 },
+      { label: 'ROC (12)', value: roc, verdict: rocVerdict, digits: 2, suffix: '%' },
+      { label: 'MACD (12,26,9)', value: macd?.histogram ?? null, verdict: macdVerdict, digits: 3 },
+    ]
+
+    const allVerdicts = [
+      ...oscillators.map((o) => o.verdict),
+      ...movingAverages.map((m) => m.smaVerdict),
+      ...movingAverages.map((m) => m.emaVerdict),
+    ]
+    const buyCount = allVerdicts.filter((v) => v === 'buy').length
+    const sellCount = allVerdicts.filter((v) => v === 'sell').length
+    const summary = buyCount > sellCount * 1.3 ? 'Buy' : sellCount > buyCount * 1.3 ? 'Sell' : 'Neutral'
+
     return {
       price,
       dma30,
@@ -354,6 +536,12 @@ export async function getTechnicalIndicators(id) {
       fiftyTwoWLow: stock.fiftyTwoWLow,
       pctFromHigh: stock.fiftyTwoWHigh ? Math.round(((stock.fiftyTwoWHigh - price) / stock.fiftyTwoWHigh) * 100) : null,
       pctFromLow: stock.fiftyTwoWLow ? Math.round(((price - stock.fiftyTwoWLow) / stock.fiftyTwoWLow) * 100) : null,
+      oscillators,
+      movingAverages,
+      summary,
+      buyCount,
+      sellCount,
+      neutralCount: allVerdicts.length - buyCount - sellCount,
     }
   }
 

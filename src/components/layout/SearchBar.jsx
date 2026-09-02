@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { searchStocks } from '../../services/api'
 import { useApp } from '../../context/AppContext'
-import { changeClass, formatPrice } from '../../utils/format'
+import { changeClass, formatPercent, formatPrice } from '../../utils/format'
 
 export default function SearchBar({ className = '', size = 'md' }) {
   const [query, setQuery] = useState('')
@@ -161,7 +161,7 @@ export default function SearchBar({ className = '', size = 'md' }) {
                       <div className="font-mono text-sm text-slate-100">{formatPrice(stock.price)}</div>
                       {stock.changePct != null && (
                         <div className={`font-mono text-xs ${changeClass(stock.changePct)}`}>
-                          {stock.changePct > 0 ? '+' : ''}{stock.changePct}%
+                          {formatPercent(stock.changePct)}
                         </div>
                       )}
                     </div>

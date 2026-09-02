@@ -240,9 +240,13 @@ export default function PeerComparison({ stock }) {
   useEffect(() => {
     let cancelled = false
     setPeers(null)
+    setError(false)
     getPeers(stock.id)
       .then((res) => {
-        if (!cancelled) setPeers(res)
+        // Defensive: drop any malformed entry (missing id/symbol) instead of
+        // letting a bad row crash the table render.
+        const clean = Array.isArray(res) ? res.filter((p) => p && p.id && p.symbol) : []
+        if (!cancelled) setPeers(clean)
       })
       .catch(() => {
         if (!cancelled) setError(true)

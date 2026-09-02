@@ -20,7 +20,7 @@ function IndexGrid({ indices }) {
           </div>
           <div className="mt-1 font-mono text-sm font-bold text-slate-100">{formatNumber(ix.value, 2)}</div>
           <div className={`font-mono text-xs ${changeClass(ix.changePct)}`}>
-            {ix.changePct > 0 ? '▲' : ix.changePct < 0 ? '▼' : ''} {Math.abs(ix.changePct)}%
+            {ix.changePct > 0 ? '▲' : ix.changePct < 0 ? '▼' : ''} {Math.abs(ix.changePct ?? 0).toFixed(2)}%
           </div>
           <div className="mt-1 hidden text-[9px] font-semibold uppercase tracking-wider text-sky-400 opacity-0 transition-opacity group-hover:opacity-100">
             View constituents →

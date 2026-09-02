@@ -87,6 +87,8 @@ export default function StockDetail() {
   
   const [stock, setStock] = useState(null)
   const [candles, setCandles] = useState([])
+  const [chartRange, setChartRange] = useState('1y')
+  const [chartLoading, setChartLoading] = useState(false)
   const [technical, setTechnical] = useState(null)
   const [financials, setFinancials] = useState(null)
   const [shareholders, setShareholders] = useState(null)
@@ -98,16 +100,14 @@ export default function StockDetail() {
     setLoading(true)
     Promise.all([
       getStockDetail(id).catch(() => ({})),
-      getCandles(id).catch(() => []),
       getTechnicalIndicators(id).catch(() => null),
       getFinancialStatements(id).catch(() => null),
       getShareholderAnalytics(id).catch(() => null),
       getCorporateDocuments(id).catch(() => null),
     ])
-      .then(([detail, candleData, tech, fin, sh, docs]) => {
+      .then(([detail, tech, fin, sh, docs]) => {
         if (cancelled) return
         setStock(detail || { notFound: true, reason: 'invalid', symbol: id, name: id })
-        setCandles(candleData || [])
         setTechnical(tech)
         setFinancials(fin)
         setShareholders(sh)
@@ -116,6 +116,24 @@ export default function StockDetail() {
       })
     return () => { cancelled = true }
   }, [id])
+
+  // Refetch just the candles when the person picks a different chart
+  // timeframe (1D/1W/1M/6M/1Y/5Y/All) — no need to reload the whole page.
+  useEffect(() => {
+    let cancelled = false
+    setChartLoading(true)
+    getCandles(id, chartRange)
+      .then((data) => {
+        if (!cancelled) {
+          setCandles(data || [])
+          setChartLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setChartLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [chartRange, id])
 
   // Auto-refresh just the live price fields every 30s, and also the moment
   // the tab regains focus — so the price updates on its own instead of
@@ -205,10 +223,36 @@ export default function StockDetail() {
       {/* 🚀 PRO CHART SECTION: Full Width & Extended Height */}
       <div className="space-y-6">
         <div className="card overflow-hidden p-4">
-          <SectionTitle title="Price Chart" subtitle="Real daily candles from NSE, with volume and SMA 20/50" />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <SectionTitle title="Price Chart" subtitle="Real candles from NSE, with volume, SMA 20/50 and RSI" />
+            <div className="inline-flex flex-wrap gap-0.5 rounded-lg border border-slate-700 p-0.5 text-xs">
+              {[
+                { key: '1d', label: '1D' },
+                { key: '1wk', label: '1W' },
+                { key: '1mo', label: '1M' },
+                { key: '6mo', label: '6M' },
+                { key: '1y', label: '1Y' },
+                { key: '5y', label: '5Y' },
+                { key: 'max', label: 'All' },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setChartRange(opt.key)}
+                  className={`rounded-md px-2.5 py-1 font-semibold transition-colors ${
+                    chartRange === opt.key ? 'bg-sky-500 text-white' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="mt-4 w-full">
             <AutoHeal name="Chart">
-              {candles && candles.length > 0 ? (
+              {chartLoading ? (
+                <div className="flex h-[400px] w-full items-center justify-center rounded-lg border border-slate-800 bg-slate-800/20 text-sm text-slate-500">Loading chart...</div>
+              ) : candles && candles.length > 0 ? (
                 <CandleChart candles={candles} height={520} />
               ) : (
                 <div className="flex h-[400px] w-full items-center justify-center rounded-lg border border-slate-800 bg-slate-800/20 text-sm text-slate-500">Chart data updating...</div>

@@ -53,7 +53,6 @@ export default function StockCard({ stock }) {
         <div className="text-right">
           <div className="font-mono text-sm font-bold text-slate-100">{formatPrice(stock.price)}</div>
           <div className={`font-mono text-xs ${up ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {up ? '+' : ''}
             {formatPercent(stock.changePct)}
           </div>
         </div>

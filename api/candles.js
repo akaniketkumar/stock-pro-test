@@ -14,10 +14,25 @@ export default async function handler(req, res) {
 
   const cleanSymbol = String(symbol).toUpperCase().trim()
   const yahooSymbol = `${cleanSymbol}.NS`
-  const safeRange = ['3mo', '6mo', '1y', '2y', '5y'].includes(range) ? range : '1y'
+
+  // UI timeframe -> Yahoo's own range + interval params. Short timeframes
+  // need an intraday interval; long ones need a coarser interval or Yahoo
+  // rejects/truncates the request.
+  const RANGE_MAP = {
+    '1d': { range: '1d', interval: '5m' },
+    '1wk': { range: '5d', interval: '15m' },
+    '1mo': { range: '1mo', interval: '1d' },
+    '3mo': { range: '3mo', interval: '1d' },
+    '6mo': { range: '6mo', interval: '1d' },
+    '1y': { range: '1y', interval: '1d' },
+    '2y': { range: '2y', interval: '1d' },
+    '5y': { range: '5y', interval: '1wk' },
+    max: { range: 'max', interval: '1mo' },
+  }
+  const { range: safeRange, interval } = RANGE_MAP[range] || RANGE_MAP['1y']
 
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${safeRange}&interval=1d`
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${safeRange}&interval=${interval}`
 
     const response = await fetch(url, {
       headers: {
@@ -48,8 +63,10 @@ export default async function handler(req, res) {
         const close = quote.close?.[i]
         const volume = quote.volume?.[i]
         if (open == null || high == null || low == null || close == null) return null
+        const iso = new Date(t * 1000).toISOString()
         return {
-          date: new Date(t * 1000).toISOString().slice(0, 10),
+          date: interval.endsWith('m') ? iso : iso.slice(0, 10),
+          time: t,
           open,
           high,
           low,
@@ -59,9 +76,11 @@ export default async function handler(req, res) {
       })
       .filter(Boolean)
 
-    res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=3600')
+    // Cache short-timeframe (intraday) data for less time since it moves fast.
+    const cacheSeconds = interval.endsWith('m') ? 60 : 900
+    res.setHeader('Cache-Control', `s-maxage=${cacheSeconds}, stale-while-revalidate=${cacheSeconds * 4}`)
 
-    return res.status(200).json({ success: true, symbol: cleanSymbol, count: candles.length, candles })
+    return res.status(200).json({ success: true, symbol: cleanSymbol, interval, count: candles.length, candles })
   } catch (error) {
     return res.status(200).json({ success: false, error: error.message, candles: [] })
   }

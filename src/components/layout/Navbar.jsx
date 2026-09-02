@@ -175,7 +175,7 @@ export default function Navbar() {
                     <span className="text-slate-400">{ix.name}</span>
                     <span className="text-slate-100">{formatNumber(ix.value, 2)}</span>
                     <span className={changeClass(ix.changePct)}>
-                      {ix.changePct > 0 ? '▲' : ix.changePct < 0 ? '▼' : ''} {Math.abs(ix.changePct)}%
+                      {ix.changePct > 0 ? '▲' : ix.changePct < 0 ? '▼' : ''} {Math.abs(ix.changePct ?? 0).toFixed(2)}%
                     </span>
                   </span>
                 ))}

@@ -56,6 +56,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       symbol: cleanSymbol,
+      name: meta.longName || meta.shortName || null,
       price,
       change,
       changePct,

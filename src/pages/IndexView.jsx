@@ -214,7 +214,6 @@ export default function IndexView() {
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-slate-200">{formatPrice(s?.price)}</td>
                     <td className={`px-4 py-3 text-right font-mono ${changeClass(s?.changePct)}`}>
-                      {(s?.changePct ?? 0) > 0 ? '+' : ''}
                       {formatPercent(s?.changePct ?? 0)}
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-slate-300">{formatMarketCap(s?.marketCap)}</td>
