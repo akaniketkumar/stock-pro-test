@@ -61,6 +61,7 @@ export default function CandleChart({ candles, height = 380 }) {
   }, [])
 
   const [hover, setHover] = useState(null)
+  const [hoverY, setHoverY] = useState(null)
 
   const layout = useMemo(() => {
     if (!candles || candles.length === 0) return null
@@ -149,8 +150,18 @@ export default function CandleChart({ candles, height = 380 }) {
   function onMove(e) {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
+    const yy = e.clientY - rect.top
     const idx = Math.max(0, Math.min(layout.candles.length - 1, Math.floor((x - PAD_L) / step)))
     setHover(idx)
+    // Only show the price crosshair while inside the price panel itself
+    // (not over the volume bars or the RSI strip below).
+    setHoverY(yy >= layout.PAD_T && yy <= layout.volTop ? yy : null)
+  }
+
+  // Inverse of layout.y(): pixel Y position -> the actual price it represents.
+  function priceAtY(yy) {
+    const { min, max, plotH, PAD_T: top } = layout
+    return max - ((yy - top) / plotH) * (max - min)
   }
 
   const hoverCandle = hover !== null ? layout.candles[hover] : null
@@ -186,7 +197,7 @@ export default function CandleChart({ candles, height = 380 }) {
         </button>
       </div>
 
-      <svg width={width} height={totalHeight} className="block" onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+      <svg width={width} height={totalHeight} className="block" onMouseMove={onMove} onMouseLeave={() => { setHover(null); setHoverY(null) }}>
         {ticks.map((t) => (
           <g key={t.y}>
             <line x1={PAD_L} x2={width - 58} y1={t.y} y2={t.y} stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
@@ -256,6 +267,16 @@ export default function CandleChart({ candles, height = 380 }) {
 
         {hoverCandle && (
           <line x1={hoverX} x2={hoverX} y1={layout.PAD_T} y2={totalHeight} stroke="#334155" strokeWidth="1" />
+        )}
+
+        {hoverY !== null && (
+          <g>
+            <line x1={PAD_L} x2={width - 58} y1={hoverY} y2={hoverY} stroke="#475569" strokeDasharray="3 3" strokeWidth="1" />
+            <rect x={width - 58} y={hoverY - 9} width={54} height={18} fill="#0f172a" stroke="#475569" strokeWidth="1" rx="3" />
+            <text x={width - 52} y={hoverY + 3} fill="#e2e8f0" fontSize="10" fontFamily="JetBrains Mono, monospace">
+              {priceAtY(hoverY).toFixed(2)}
+            </text>
+          </g>
         )}
 
         <defs>

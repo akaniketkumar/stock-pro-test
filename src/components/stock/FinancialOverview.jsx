@@ -35,10 +35,17 @@ export default function FinancialOverview({ stock }) {
   ]
 
   return (
-    <div className="divide-y divide-slate-800/60">
-      {rows.map((r) => (
-        <MetricRow key={r.label} {...r} />
-      ))}
+    <div>
+      {stock.fundamentalsModeled && (
+        <div className="mb-2 px-1 text-[11px] text-slate-500">
+          Modeled estimate for this company — not from official filings.
+        </div>
+      )}
+      <div className="divide-y divide-slate-800/60">
+        {rows.map((r) => (
+          <MetricRow key={r.label} {...r} />
+        ))}
+      </div>
     </div>
   )
 }
