@@ -119,7 +119,6 @@ export function deriveQuarterly(stock, periods = 4) {
       ((stock.netProfit || 1000) / 4) * Math.pow(1 + pg, (periods - 1 - i) / 4) * (0.96 + rand() * 0.08)
     )
     return {
-      id: `${stock.id}-q${i}`,
       period,
       revenue,
       netProfit: profit,
@@ -358,30 +357,47 @@ export function deriveHoldings(stock, periods = 4) {
 
 export function deriveShareholders(stock) {
   const rand = seededRand(`${stock.id}-sh`)
-  // Realistic shareholder count scales with company size — large NSE
-  // companies typically have tens of lakhs of retail shareholders, small
-  // caps have tens of thousands. sqrt(marketCap) gives a sensible curve
-  // across that whole range instead of a flat/tiny number.
-  const mcap = Math.max(stock.marketCap || 1000, 1)
-  const base = Math.round((15000 + Math.sqrt(mcap) * 2500) * (0.85 + rand() * 0.3))
+  // Real shareholder counts don't correlate cleanly with any single ratio we
+  // have for free — this is a rough, clearly-labeled estimate (scaled off
+  // market cap and free float), not an actual registrar record count.
+  const marketCap = stock.marketCap || 5000
+  const publicHolding = stock.publicHolding || 20
+  const baseLakh = Math.max(0.5, Math.min(80, (marketCap / 45000) * (0.5 + publicHolding / 100) * (0.85 + rand() * 0.3)))
+  const base = Math.round(baseLakh * 100000)
   const labels = quarterLabels(6)
   const history = labels.map((period, i) => {
-    const total = Math.max(1, Math.round(base * Math.pow(1 + (0.015 + rand() * 0.03), 5 - i)))
-    const prev = Math.max(1, Math.round(base * Math.pow(1 + (0.015 + rand() * 0.03), 5 - i + 1)))
+    const total = Math.max(10000, Math.round(base * Math.pow(1 + (0.015 + rand() * 0.03), 5 - i)))
+    const prev = Math.max(10000, Math.round(base * Math.pow(1 + (0.015 + rand() * 0.03), 5 - i + 1)))
     const growth = Math.round(((total - prev) / prev) * 1000) / 10
     return { period, total, growth }
   })
   return { current: history[0], history }
 }
 
-// We don't have a real corporate-filings feed (that requires a paid feed or
-// scraping NSE's own site, which we avoid). Rather than inventing specific
-// fake facts under a real company's name — a fabricated dividend amount, a
-// fake "AAA" credit rating, a made-up buyback — this returns an honestly
-// empty structure, and the UI points people to the company's real NSE page
-// for actual filings instead.
 export function deriveDocuments(stock) {
-  return { announcements: [], annualReports: [], ratings: [], concalls: [] }
+  // Real, specific corporate events (exact dividend amounts, credit rating
+  // grades, buyback announcements) can't be fabricated for a named real
+  // company — that's misinformation, not an estimate. Instead this points
+  // to NSE's own genuine, public pages for this exact symbol, so the person
+  // can read the real announcements, filings and results themselves.
+  const symbol = encodeURIComponent(stock.symbol)
+  const nseAnnouncements = `https://www.nseindia.com/companies-listing/corporate-filings-announcements?symbol=${symbol}`
+  const nseResults = `https://www.nseindia.com/companies-listing/corporate-filings-financial-results?symbol=${symbol}`
+  const nseQuote = `https://www.nseindia.com/get-quotes/equity?symbol=${symbol}`
+
+  return {
+    announcements: [
+      { date: 'Live on NSE', title: `All corporate announcements for ${stock.name}`, type: 'Announcements', link: nseAnnouncements },
+    ],
+    annualReports: [
+      { year: 'All years', title: `${stock.name} — financial results & annual reports on NSE`, type: 'Link', link: nseResults },
+    ],
+    ratings: null, // Not available for free anywhere reliable — shown as "not available" in the UI rather than invented.
+    concalls: [
+      { quarter: 'All quarters', date: '', transcript: `${stock.name} — investor presentations & concall material on NSE`, link: nseAnnouncements },
+    ],
+    externalOnly: true,
+  }
 }
 
 export function derivePeers(stock, allStocks) {

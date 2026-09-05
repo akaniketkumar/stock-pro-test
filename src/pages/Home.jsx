@@ -17,11 +17,6 @@ function IndexGrid({ indices }) {
           <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
             {ix.name}
             <Help text="Index level and the day's change in points/percent versus the previous close. Click a card to view its constituent stocks." iconSize="h-3 w-3" />
-            {ix.isLive === false && (
-              <span className="ml-auto rounded bg-slate-800 px-1 py-0.5 text-[8px] font-bold text-slate-500" title="No free live source for this one — last known value">
-                STATIC
-              </span>
-            )}
           </div>
           <div className="mt-1 font-mono text-sm font-bold text-slate-100">{formatNumber(ix.value, 2)}</div>
           <div className={`font-mono text-xs ${changeClass(ix.changePct)}`}>
@@ -253,39 +248,11 @@ export default function Home() {
         <div className="card p-6">
           <h3 className="flex items-center gap-2 text-xl font-bold text-white">
             IPO Watch
-            <Help text="Initial Public Offerings currently open on NSE. GMP is the unofficial premium the shares trade at in the grey market before listing." />
+            <span className="chip bg-slate-800 text-slate-400">Coming Soon</span>
           </h3>
-          <p className="mt-2 text-sm text-slate-400">Current open and upcoming issues on NSE.</p>
-          <div className="mt-4 space-y-3">
-            {openIpos.slice(0, 2).map((ipo) => (
-              <div key={ipo.id} className="flex items-center justify-between rounded-xl border border-slate-800 bg-terminal-900/50 p-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-100">{ipo.name}</span>
-                    <span className="chip bg-sky-500/10 text-sky-300">{ipo.status}</span>
-                  </div>
-                  <div className="mt-0.5 text-xs text-slate-500">
-                    ₹{ipo.priceBand.low}–{ipo.priceBand.high} · {ipo.issueSizeLabel}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono text-sm font-bold text-emerald-400">
-                    {ipo.gmp != null ? `₹${ipo.gmp}` : '—'}
-                  </div>
-                  <div className="flex items-center justify-end gap-1 text-[10px] text-slate-500">
-                    GMP
-                    <Help glossaryKey="gmp" iconSize="h-3 w-3" />
-                  </div>
-                </div>
-              </div>
-            ))}
-            {openIpos.length === 0 && upcomingIpos.length > 0 && (
-              <div className="text-sm text-slate-500">Next issue opens {upcomingIpos[0].openDate} · {upcomingIpos[0].name}</div>
-            )}
-          </div>
-          <Link to="/ipos" className="btn-ghost mt-4">
-            View all IPOs →
-          </Link>
+          <p className="mt-2 text-sm text-slate-400">
+            Real IPO data (GMP, subscription, listing details) needs a paid feed to be accurate — this will go live once that's connected.
+          </p>
         </div>
       </section>
     </div>

@@ -150,22 +150,24 @@ export default function CandleChart({ candles, height = 380 }) {
   function onMove(e) {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
-    const yy = e.clientY - rect.top
+    const yPos = e.clientY - rect.top
     const idx = Math.max(0, Math.min(layout.candles.length - 1, Math.floor((x - PAD_L) / step)))
     setHover(idx)
-    // Only show the price crosshair while inside the price panel itself
-    // (not over the volume bars or the RSI strip below).
-    setHoverY(yy >= layout.PAD_T && yy <= layout.volTop ? yy : null)
-  }
-
-  // Inverse of layout.y(): pixel Y position -> the actual price it represents.
-  function priceAtY(yy) {
-    const { min, max, plotH, PAD_T: top } = layout
-    return max - ((yy - top) / plotH) * (max - min)
+    setHoverY(yPos)
   }
 
   const hoverCandle = hover !== null ? layout.candles[hover] : null
   const hoverX = hover !== null ? PAD_L + step * hover + step / 2 : 0
+  const hoverRSI = hover !== null && layout.rsiSeries ? layout.rsiSeries[hover] : null
+
+  // Crosshair price label — only meaningful inside the price panel itself.
+  const inPricePanel = hoverY !== null && hoverY >= PAD_T && hoverY <= PAD_T + layout.plotH
+  const crosshairPrice = inPricePanel ? layout.max - ((hoverY - PAD_T) / layout.plotH) * (layout.max - layout.min) : null
+
+  // Same crosshair treatment for the RSI sub-panel: hovering anywhere in it
+  // shows exactly what RSI level the cursor is at on the right axis.
+  const inRsiPanel = layout.RSI_H > 0 && hoverY !== null && hoverY >= layout.rsiTop && hoverY <= layout.rsiTop + layout.RSI_H
+  const crosshairRsiValue = inRsiPanel ? Math.max(0, Math.min(100, (1 - (hoverY - layout.rsiTop) / layout.RSI_H) * 100)) : null
 
   return (
     <div ref={wrapRef} className="relative w-full select-none overflow-hidden">
@@ -197,7 +199,7 @@ export default function CandleChart({ candles, height = 380 }) {
         </button>
       </div>
 
-      <svg width={width} height={totalHeight} className="block" onMouseMove={onMove} onMouseLeave={() => { setHover(null); setHoverY(null) }}>
+      <svg width={width} height={totalHeight} className="block cursor-crosshair" onMouseMove={onMove} onMouseLeave={() => { setHover(null); setHoverY(null) }}>
         {ticks.map((t) => (
           <g key={t.y}>
             <line x1={PAD_L} x2={width - 58} y1={t.y} y2={t.y} stroke="#1e293b" strokeDasharray="3 3" strokeWidth="1" />
@@ -262,11 +264,6 @@ export default function CandleChart({ candles, height = 380 }) {
             <path d={layout.rsiAreaD} fill="url(#rsiFillGrad)" stroke="none" />
             <path d={layout.rsiLineD} fill="none" stroke="#a78bfa" strokeWidth="1.4" />
             <text x={PAD_L} y={layout.rsiTop - 3} fill="#94a3b8" fontSize="9" fontFamily="JetBrains Mono, monospace">RSI (14)</text>
-            {hover !== null && layout.rsiSeries && layout.rsiSeries[hover] != null && (
-              <text x={PAD_L + 52} y={layout.rsiTop - 3} fill="#c4b5fd" fontSize="9" fontFamily="JetBrains Mono, monospace">
-                {layout.rsiSeries[hover].toFixed(1)}
-              </text>
-            )}
           </>
         )}
 
@@ -274,16 +271,26 @@ export default function CandleChart({ candles, height = 380 }) {
           <line x1={hoverX} x2={hoverX} y1={layout.PAD_T} y2={totalHeight} stroke="#334155" strokeWidth="1" />
         )}
 
-        {hover !== null && layout.rsiSeries && layout.rsiSeries[hover] != null && (
-          <circle cx={hoverX} cy={layout.yr(layout.rsiSeries[hover])} r="2.5" fill="#a78bfa" />
-        )}
-
-        {hoverY !== null && (
+        {/* Horizontal crosshair + right-axis price label, so dragging up/down
+            the price panel shows exactly what price level the cursor is at. */}
+        {inPricePanel && (
           <g>
             <line x1={PAD_L} x2={width - 58} y1={hoverY} y2={hoverY} stroke="#475569" strokeDasharray="3 3" strokeWidth="1" />
-            <rect x={width - 58} y={hoverY - 9} width={54} height={18} fill="#0f172a" stroke="#475569" strokeWidth="1" rx="3" />
-            <text x={width - 52} y={hoverY + 3} fill="#e2e8f0" fontSize="10" fontFamily="JetBrains Mono, monospace">
-              {priceAtY(hoverY).toFixed(2)}
+            <rect x={width - 56} y={hoverY - 9} width="54" height="18" rx="3" fill="#0ea5e9" />
+            <text x={width - 29} y={hoverY + 4} fill="#06090f" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily="JetBrains Mono, monospace">
+              {crosshairPrice.toFixed(1)}
+            </text>
+          </g>
+        )}
+
+        {/* Same crosshair + value label on the RSI sub-panel — hover/drag
+            anywhere in it to read the exact RSI level under the cursor. */}
+        {inRsiPanel && (
+          <g>
+            <line x1={PAD_L} x2={width - 58} y1={hoverY} y2={hoverY} stroke="#a78bfa" strokeDasharray="3 3" strokeWidth="1" opacity="0.7" />
+            <rect x={width - 56} y={hoverY - 9} width="54" height="18" rx="3" fill="#a78bfa" />
+            <text x={width - 29} y={hoverY + 4} fill="#06090f" fontSize="10" fontWeight="700" textAnchor="middle" fontFamily="JetBrains Mono, monospace">
+              {crosshairRsiValue.toFixed(1)}
             </text>
           </g>
         )}
@@ -317,6 +324,14 @@ export default function CandleChart({ candles, height = 380 }) {
             <span className={hoverCandle.close >= hoverCandle.open ? 'text-emerald-400' : 'text-rose-400'}>{hoverCandle.close.toFixed(2)}</span>
           </div>
           <div className="mt-1 border-t border-slate-800 pt-1 text-slate-400">Vol {hoverCandle.volume.toLocaleString('en-IN')}</div>
+          {hoverRSI != null && (
+            <div className={`mt-0.5 font-semibold ${hoverRSI > 70 ? 'text-rose-400' : hoverRSI < 30 ? 'text-emerald-400' : 'text-violet-300'}`}>
+              RSI {hoverRSI.toFixed(1)}
+            </div>
+          )}
+          {crosshairPrice != null && (
+            <div className="mt-0.5 border-t border-slate-800 pt-1 text-sky-300">Cursor: {crosshairPrice.toFixed(2)}</div>
+          )}
         </div>
       )}
 

@@ -1,10 +1,44 @@
 [
-  { "id": "NIFTY50", "name": "Nifty 50", "value": 24810.45, "change": 142.6, "changePct": 0.58 },
-  { "id": "SENSEX", "name": "Sensex", "value": 81219.3, "change": 421.75, "changePct": 0.52 },
-  { "id": "BANKNIFTY", "name": "Bank Nifty", "value": 52466.85, "change": -118.4, "changePct": -0.23 },
-  { "id": "MIDCAP", "name": "Nifty Midcap 100", "value": 56782.1, "change": 289.4, "changePct": 0.51 },
-  { "id": "SMALLCAP", "name": "Nifty Smallcap 100", "value": 17834.66, "change": -96.2, "changePct": -0.54 },
-  { "id": "GOLD", "name": "Gold (MCX)", "value": 73120.0, "change": 210.0, "changePct": 0.29 },
-  { "id": "USDINR", "name": "USD/INR", "value": 83.72, "change": -0.04, "changePct": -0.05 },
-  { "id": "VIX", "name": "India VIX", "value": 13.42, "change": -0.61, "changePct": -4.35 }
+  {
+    "id": "NIFTY50",
+    "name": "Nifty 50",
+    "value": 24810.45,
+    "change": 142.6,
+    "changePct": 0.58
+  },
+  {
+    "id": "SENSEX",
+    "name": "Sensex",
+    "value": 81219.3,
+    "change": 421.75,
+    "changePct": 0.52
+  },
+  {
+    "id": "BANKNIFTY",
+    "name": "Bank Nifty",
+    "value": 52466.85,
+    "change": -118.4,
+    "changePct": -0.23
+  },
+  {
+    "id": "MIDCAP",
+    "name": "Nifty Midcap 100",
+    "value": 56782.1,
+    "change": 289.4,
+    "changePct": 0.51
+  },
+  {
+    "id": "SMALLCAP",
+    "name": "Nifty Smallcap 100",
+    "value": 17834.66,
+    "change": -96.2,
+    "changePct": -0.54
+  },
+  {
+    "id": "VIX",
+    "name": "India VIX",
+    "value": 13.42,
+    "change": -0.61,
+    "changePct": -4.35
+  }
 ]

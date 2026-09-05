@@ -35,13 +35,13 @@ export default function BoardMeetings({ meetings }) {
               <td className="py-3 pr-4 font-mono text-slate-400">{m.date}</td>
               <td className="py-3 pr-4 font-medium text-slate-200">{m.purpose}</td>
               <td className="py-3 pr-4">{statusBadge(m.status)}</td>
-              <td className="py-3 font-mono text-xs text-slate-500">
+              <td className="py-3 font-mono text-xs">
                 {m.link && m.link !== '#' ? (
-                  <a href={m.link} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">
-                    View on NSE
+                  <a href={m.link} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:text-sky-300 hover:underline">
+                    View on NSE →
                   </a>
                 ) : (
-                  '—'
+                  <span className="text-slate-600">—</span>
                 )}
               </td>
             </tr>

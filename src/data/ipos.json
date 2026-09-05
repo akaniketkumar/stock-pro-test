@@ -4,12 +4,9 @@
     "name": "Swiggy",
     "ticker": "SWIGGY",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Open",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 371,
-      "high": 390
-    },
+    "priceBand": { "low": 371, "high": 390 },
     "lotSize": 38,
     "issueSizeCr": 11420,
     "issueSizeLabel": "11,420 Cr",
@@ -35,12 +32,9 @@
     "name": "NTPC Green Energy",
     "ticker": "NTPCGREEN",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Open",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 102,
-      "high": 108
-    },
+    "priceBand": { "low": 102, "high": 108 },
     "lotSize": 138,
     "issueSizeCr": 10000,
     "issueSizeLabel": "10,000 Cr",
@@ -66,12 +60,9 @@
     "name": "Sagility India",
     "ticker": "SAGILITY",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Open",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 28,
-      "high": 30
-    },
+    "priceBand": { "low": 28, "high": 30 },
     "lotSize": 500,
     "issueSizeCr": 2130,
     "issueSizeLabel": "2,130 Cr",
@@ -97,12 +88,9 @@
     "name": "Afcons Infrastructure",
     "ticker": "AFCONS",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Upcoming",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 450,
-      "high": 463
-    },
+    "priceBand": { "low": 450, "high": 463 },
     "lotSize": 32,
     "issueSizeCr": 5430,
     "issueSizeLabel": "5,430 Cr",
@@ -123,12 +111,9 @@
     "name": "Zinka Logistics (Blackbuck)",
     "ticker": "ZINKA",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Upcoming",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 270,
-      "high": 284
-    },
+    "priceBand": { "low": 270, "high": 284 },
     "lotSize": 52,
     "issueSizeCr": 2040,
     "issueSizeLabel": "2,040 Cr",
@@ -151,10 +136,7 @@
     "exchange": "NSE",
     "status": "Listed",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 1427,
-      "high": 1503
-    },
+    "priceBand": { "low": 1427, "high": 1503 },
     "lotSize": 10,
     "issueSizeCr": 4321,
     "issueSizeLabel": "4,321 Cr",
@@ -185,10 +167,7 @@
     "exchange": "NSE",
     "status": "Listed",
     "type": "SME",
-    "priceBand": {
-      "low": 208,
-      "high": 220
-    },
+    "priceBand": { "low": 208, "high": 220 },
     "lotSize": 600,
     "issueSizeCr": 396,
     "issueSizeLabel": "396 Cr",
@@ -217,12 +196,9 @@
     "name": "Hunar Street Technologies",
     "ticker": "HUNARST",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Upcoming",
     "type": "SME",
-    "priceBand": {
-      "low": 12,
-      "high": 15
-    },
+    "priceBand": { "low": 12, "high": 15 },
     "lotSize": 10000,
     "issueSizeCr": 75,
     "issueSizeLabel": "75 Cr",
@@ -245,10 +221,7 @@
     "exchange": "NSE",
     "status": "Listed",
     "type": "Mainboard",
-    "priceBand": {
-      "low": 1865,
-      "high": 1960
-    },
+    "priceBand": { "low": 1865, "high": 1960 },
     "lotSize": 7,
     "issueSizeCr": 27870,
     "issueSizeLabel": "27,870 Cr",
@@ -277,12 +250,9 @@
     "name": "Avenza Realty",
     "ticker": "AVENZA",
     "exchange": "NSE",
-    "status": "Listed",
+    "status": "Open",
     "type": "SME",
-    "priceBand": {
-      "low": 104,
-      "high": 108
-    },
+    "priceBand": { "low": 104, "high": 108 },
     "lotSize": 1300,
     "issueSizeCr": 110,
     "issueSizeLabel": "110 Cr",

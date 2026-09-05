@@ -190,9 +190,17 @@ export default function StockDetail() {
   }
 
   // 🧹 DATA SANITIZER: Kachra aur missing IDs ko yahi saaf kar do taaki andar crash na ho
-  const safeQuarterly = Array.isArray(stock.quarterly) ? stock.quarterly.filter(q => q && q.id) : []
+  const safeQuarterly = Array.isArray(stock.quarterly) ? stock.quarterly.filter((q) => q && q.period) : []
   const safeMeetings = Array.isArray(stock.boardMeetings) ? stock.boardMeetings.filter(b => b && b.id) : []
-  const safeConviction = stock.conviction || { score: 50, label: 'Neutral', thesis: 'AI Data is currently being generated for this stock.', reasons: [], risks: [] }
+  const safeConviction = stock.conviction || {
+    score: 50,
+    label: 'Neutral',
+    thesis: stock.hasFullData
+      ? 'AI data is currently being generated for this stock.'
+      : `The AI Conviction score needs deep fundamentals we don't have for ${stock.symbol} yet — only its live price and chart are available.`,
+    reasons: [],
+    risks: [],
+  }
   const safeRedFlags = stock.redFlags || { questions: [], results: [] }
   
   // Cleaned Stock Object
@@ -277,7 +285,15 @@ export default function StockDetail() {
 
         <div className="card p-4">
           <SectionTitle title="Shareholding Pattern" subtitle="Promoters, FII, DII and public with pledge tracking · modeled estimate, not from live exchange filings" />
-          <AutoHeal name="Shareholding"><ShareholdingSection stock={safeStock} /></AutoHeal>
+          <AutoHeal name="Shareholding">
+            {safeStock.hasFullData ? (
+              <ShareholdingSection stock={safeStock} />
+            ) : (
+              <div className="mt-4 p-8 text-center text-sm text-slate-500">
+                Shareholding data isn't available for {safeStock.symbol} yet — this company is outside our curated deep-data list, so we only show its live price and chart.
+              </div>
+            )}
+          </AutoHeal>
         </div>
       </div>
 
@@ -289,7 +305,7 @@ export default function StockDetail() {
 
       <SectionAnchor id="financials" title="Financial Statements" subtitle="Quarterly results, multi-year P&L, balance sheet, cash flows · modeled estimate, not official filings">
         <AutoHeal name="Financials">
-          {financials ? <FinancialStatements data={financials} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Financial statements compiling...</div>}
+          {financials ? <FinancialStatements data={financials} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">{safeStock.hasFullData ? 'Financial statements compiling...' : `Detailed financial statements aren't available for ${safeStock.symbol} yet.`}</div>}
         </AutoHeal>
       </SectionAnchor>
 
@@ -297,22 +313,16 @@ export default function StockDetail() {
         <AutoHeal name="Peer Comparison"><PeerComparison stock={safeStock} /></AutoHeal>
       </SectionAnchor>
 
-      <SectionAnchor id="shareholders" title="Shareholder Analytics" subtitle="Investor base size, ownership trend and pledge risk">
+      <SectionAnchor id="shareholders" title="Shareholder Analytics" subtitle="Investor base size, ownership trend and pledge risk · shareholder count is a modeled estimate, not a registrar record">
         <AutoHeal name="Shareholder Analytics">
           {shareholders ? <ShareholderAnalytics stock={safeStock} data={shareholders} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Analytics fetching...</div>}
-        </AutoHeal>
-      </SectionAnchor>
-
-      <SectionAnchor id="documents" title="Documents" subtitle="Announcements, annual reports, credit ratings and earnings calls">
-        <AutoHeal name="Documents">
-          {documents ? <CorporateDocuments stock={safeStock} data={documents} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Documents fetching...</div>}
         </AutoHeal>
       </SectionAnchor>
 
       <div className="card p-4">
         <SectionTitle title="Quarterly Results" subtitle="Latest four quarters of profit / loss performance · modeled estimate, not from official filings" />
         <AutoHeal name="Quarterly Results">
-          {safeStock.quarterly && safeStock.quarterly.length > 0 ? <QuarterlySection stock={safeStock} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Quarterly results updating...</div>}
+          {safeStock.quarterly && safeStock.quarterly.length > 0 ? <QuarterlySection stock={safeStock} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">{safeStock.hasFullData ? 'Quarterly results updating...' : `Quarterly results aren't available for ${safeStock.symbol} yet.`}</div>}
         </AutoHeal>
       </div>
 

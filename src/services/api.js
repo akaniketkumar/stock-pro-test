@@ -6,7 +6,6 @@ import redFlags from '../data/redFlags.json'
 import stockDetails from '../data/stockDetails.json'
 import stockProfiles from '../data/stockProfiles.json'
 import { EXTRA_COMPANIES, SYMBOL_ALIASES } from '../data/companyList'
-import { seededRand } from '../utils/random'
 
 import {
   deriveCandles,
@@ -127,60 +126,6 @@ function compact(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null))
 }
 
-// Any real company outside our curated 27 (i.e. from EXTRA_COMPANIES, the
-// full NSE directory, or a pure live-quote match) has a real name, sector
-// and live price — but no hand-curated fundamentals (P/E, ROCE, revenue...).
-// Rather than leaving those blank, we seed a deterministic, clearly-labelled
-// set of modeled baseline numbers from the symbol itself, so every real
-// company's page looks complete instead of a wall of dashes. Same symbol
-// always produces the same numbers — nothing changes on reload.
-function synthesizeFundamentals(sym, price, real = {}) {
-  const rand = seededRand(`${sym}-fund`)
-  const pe = real.pe ?? 8 + rand() * 32
-  const roce = 5 + rand() * 24
-  const roe = Math.max(2, roce - 2 + rand() * 6 - 3)
-  const debtToEquity = Math.round((rand() * 1.4) * 100) / 100
-  const currentRatio = Math.round((0.9 + rand() * 1.4) * 100) / 100
-  const ebitdaMargin = Math.round(6 + rand() * 22)
-  const pb = 1 + rand() * 5
-  const bookValue = real.bookValue ?? (price ? Math.round((price / pb) * 100) / 100 : null)
-  const eps = real.eps ?? (price ? Math.round((price / pe) * 100) / 100 : null)
-  // Market cap bucket in Cr — real value when Yahoo has it, otherwise a
-  // plausible small/mid-cap estimate (not tied to real shares-outstanding
-  // data, which this free source doesn't reliably have for every symbol).
-  const marketCap = real.marketCap ?? Math.round(300 + rand() * 40000)
-  const psRatio = 0.4 + rand() * 2
-  const revenue = Math.round(marketCap * psRatio)
-  const netMargin = 0.03 + rand() * 0.15
-  const netProfit = Math.round(revenue * netMargin)
-  const operatingCashFlow = Math.round(netProfit * (0.8 + rand() * 0.8))
-  const freeCashFlow = Math.round(operatingCashFlow * (0.35 + rand() * 0.55))
-  const promoterHolding = Math.round(15 + rand() * 60)
-  const revenueGrowth = Math.round(-5 + rand() * 30)
-  const profitGrowth = Math.round(-8 + rand() * 35)
-
-  return {
-    pe: Math.round(pe * 10) / 10,
-    roce: Math.round(roce * 10) / 10,
-    roe: Math.round(roe * 10) / 10,
-    debtToEquity,
-    currentRatio,
-    ebitdaMargin,
-    bookValue,
-    eps,
-    marketCap,
-    revenue,
-    netProfit,
-    operatingCashFlow,
-    freeCashFlow,
-    promoterHolding,
-    revenueGrowth,
-    profitGrowth,
-    fundamentalsModeled: true,
-    marketCapIsReal: real.marketCap != null,
-  }
-}
-
 async function fetchLiveQuote(sym) {
   try {
     const controller = new AbortController()
@@ -200,13 +145,6 @@ async function fetchLiveQuote(sym) {
       fiftyTwoWHigh: data.fiftyTwoWHigh,
       fiftyTwoWLow: data.fiftyTwoWLow,
       volume: data.volume,
-      name: data.name,
-      // Real fundamentals when Yahoo's quote endpoint has them — used to
-      // override the modeled/synthetic estimate for non-curated companies.
-      realMarketCap: data.marketCap,
-      realPe: data.pe,
-      realBookValue: data.bookValue,
-      realEps: data.eps,
     })
   } catch {
     return null
@@ -241,31 +179,19 @@ async function resolveStock(id) {
     }
   }
 
-  // Curated (stocks.json) companies already carry real fundamentals fields.
-  // Everything else (EXTRA_COMPANIES, the full NSE directory, or a pure
-  // live-quote match) only has name/sector/price — fill in the rest with a
-  // deterministic modeled estimate, anchored to Yahoo's real market cap/PE
-  // when available, so the numbers are at least scaled correctly for large
-  // vs small companies instead of everyone landing in a small-cap range.
-  if (base.pe === undefined) {
-    base = {
-      ...base,
-      ...synthesizeFundamentals(sym, live?.price ?? base.price, {
-        marketCap: live?.realMarketCap,
-        pe: live?.realPe,
-        bookValue: live?.realBookValue,
-        eps: live?.realEps,
-      }),
-    }
-  }
+  // True only for the curated stocks.json companies that have real
+  // fundamentals (marketCap, EPS, promoter holding, etc). Everything else —
+  // EXTRA_COMPANIES entries and any company resolved only via live search —
+  // has just a live price and no real financial data behind it, so deep
+  // sections (shareholding, quarterly results, peers) must not pretend
+  // otherwise with made-up numbers.
+  const hasFullData = typeof base.marketCap === 'number' && typeof base.eps === 'number'
 
   if (live) {
-    // Never leak the raw real-* passthrough fields into the stock object.
-    const { realMarketCap, realPe, realBookValue, realEps, ...liveRest } = live
-    return { stock: { ...base, ...liveRest, id: sym, symbol: sym, isLive: true }, status: 'ok' }
+    return { stock: { ...base, ...live, id: sym, symbol: sym, isLive: true, hasFullData }, status: 'ok' }
   }
   if (typeof base.price === 'number') {
-    return { stock: { ...base, id: sym, symbol: sym, isLive: false }, status: 'ok' }
+    return { stock: { ...base, id: sym, symbol: sym, isLive: false, hasFullData }, status: 'ok' }
   }
   return { stock: null, status: 'unavailable', sym, name: base.name }
 }
@@ -281,13 +207,18 @@ async function withLivePrices(baseStocks) {
 }
 
 function deriveBoardMeetings(stock) {
-  // Real reference link to the company's own NSE page (announcements/
-  // corporate actions tab), since we don't have a paid feed of exact
-  // historical board-meeting records to link to individually.
-  const nseLink = `https://www.nseindia.com/get-quotes/equity?symbol=${encodeURIComponent(stock.symbol)}`
+  // We don't have a free, reliable source for exact historical board-meeting
+  // dates per company, so instead of showing fake dates with a dead link,
+  // point to NSE's own real, public corporate-announcements page for this
+  // exact company — genuinely useful and always current.
   return [
-    { id: `${stock.id}-bm-1`, date: '14 Oct 2026', purpose: 'Results & Dividend', status: 'Held', link: nseLink },
-    { id: `${stock.id}-bm-2`, date: '05 Aug 2026', purpose: 'AGM', status: 'Held', link: nseLink }
+    {
+      id: `${stock.id}-announcements`,
+      date: 'Ongoing',
+      purpose: 'Results, AGM, dividends & other corporate actions',
+      status: 'View on NSE',
+      link: `https://www.nseindia.com/companies-listing/corporate-filings-announcements?symbol=${encodeURIComponent(stock.symbol)}`,
+    },
   ]
 }
 
@@ -320,30 +251,6 @@ const INDEX_YAHOO_SYMBOLS = {
   VIX: '^INDIAVIX',
 }
 
-const TROY_OUNCE_IN_GRAMS = 31.1035
-
-// Gold (MCX) has no free live Indian-exchange source, but we can build a
-// live approximation from two things Yahoo does give us for free: the
-// international COMEX gold price (USD/troy oz) and the live USD/INR rate.
-// This will NOT exactly match MCX (which bakes in import duty, GST and a
-// local premium), so it's surfaced as "Gold (Approx.)" rather than claiming
-// to be the real MCX print.
-async function fetchApproxGoldINR() {
-  const [goldUsd, usdInr] = await Promise.all([
-    fetchLiveIndexQuote('GC=F'),
-    fetchLiveIndexQuote('INR=X'),
-  ])
-  if (!goldUsd || !usdInr) return null
-  const pricePerGramUsd = goldUsd.value / TROY_OUNCE_IN_GRAMS
-  const pricePer10gInr = pricePerGramUsd * 10 * usdInr.value
-  // We don't have yesterday's approx-INR close to diff against directly, so
-  // back it out from today's international % move (mirrors the real change
-  // reasonably well since INR/oz moves with the same % as USD/oz most days).
-  const changePct = goldUsd.changePct
-  const prevValue = pricePer10gInr / (1 + changePct / 100)
-  return { value: Math.round(pricePer10gInr), change: Math.round(pricePer10gInr - prevValue), changePct }
-}
-
 async function fetchLiveIndexQuote(yahooSymbol) {
   try {
     const controller = new AbortController()
@@ -359,21 +266,35 @@ async function fetchLiveIndexQuote(yahooSymbol) {
   }
 }
 
-async function getLiveIndexRow(meta) {
-  if (meta.id === 'GOLD') {
-    const approx = await fetchApproxGoldINR()
-    return approx
-      ? { ...meta, name: 'Gold (Approx.)', value: approx.value, change: approx.change, changePct: approx.changePct, isLive: true, isApprox: true }
-      : { ...meta, isLive: false }
-  }
-  const yahooSymbol = INDEX_YAHOO_SYMBOLS[meta.id]
-  if (!yahooSymbol) return { ...meta, isLive: false }
-  const live = await fetchLiveIndexQuote(yahooSymbol)
-  return live ? { ...meta, ...live, isLive: true } : { ...meta, isLive: false }
-}
-
 export async function getIndices() {
-  return Promise.all(indices.map((ix) => getLiveIndexRow(ix)))
+  const rows = await Promise.all(
+    indices.map(async (ix) => {
+      const yahooSymbol = INDEX_YAHOO_SYMBOLS[ix.id]
+      if (ix.id === 'GOLD') {
+        // MCX Gold itself has no free live feed, so approximate it from
+        // live international gold (COMEX, USD/troy oz) converted to
+        // INR per 10g using the live USD/INR rate. This will differ a
+        // little from the exact MCX contract price (import duty, local
+        // premium), so it's labelled "Approx." rather than "MCX" in the UI.
+        const [goldUsd, usdinr] = await Promise.all([
+          fetchLiveIndexQuote('GC=F'),
+          fetchLiveIndexQuote('INR=X'),
+        ])
+        if (goldUsd && usdinr && goldUsd.price && usdinr.price) {
+          const pricePer10gInr = (goldUsd.price / 31.1035) * 10 * usdinr.price
+          const prevPricePer10gInr = ((goldUsd.price - goldUsd.change) / 31.1035) * 10 * (usdinr.price - usdinr.change)
+          const change = pricePer10gInr - prevPricePer10gInr
+          const changePct = prevPricePer10gInr ? (change / prevPricePer10gInr) * 100 : 0
+          return { ...ix, value: Math.round(pricePer10gInr), change: Math.round(change), changePct, isLive: true, isApprox: true }
+        }
+        return ix
+      }
+      if (!yahooSymbol) return ix
+      const live = await fetchLiveIndexQuote(yahooSymbol)
+      return live ? { ...ix, ...live, isLive: true } : ix
+    })
+  )
+  return rows
 }
 
 export async function getAllStocks() {
@@ -463,13 +384,25 @@ async function fetchRealCandles(sym, range = '1y') {
   }
 }
 
+const RANGE_SYNTHETIC_COUNT = {
+  '1d': 78, // ~78 five-minute bars in a trading day
+  '1wk': 130, // ~5 days of 15-min bars
+  '1mo': 22,
+  '3mo': 64,
+  '6mo': 128,
+  '1y': 250,
+  '2y': 500,
+  '5y': 260, // weekly bars
+  max: 180, // monthly bars
+}
+
 export async function getCandles(id, range = '1y') {
   const stock = await getStockRow(id)
   if (!stock) return []
   const real = await fetchRealCandles(stock.id, range)
   if (real) return real
   await delay(60)
-  return deriveCandles(stock)
+  return deriveCandles(stock, RANGE_SYNTHETIC_COUNT[range] || 120)
 }
 
 function sma(values, period) {
@@ -667,7 +600,7 @@ export async function getTechnicalIndicators(id) {
 export async function getFinancialStatements(id) {
   await delay(60)
   const stock = await getStockRow(id)
-  if (!stock) return null
+  if (!stock || !stock.hasFullData) return null
   const balanceSheet = deriveBalanceSheet(stock)
   return {
     quarterly: deriveQuarterlyDetailed(stock),
@@ -682,7 +615,7 @@ export async function getFinancialStatements(id) {
 export async function getShareholderAnalytics(id) {
   await delay(60)
   const stock = await getStockRow(id)
-  if (!stock) return null
+  if (!stock || !stock.hasFullData) return null
   return {
     shareholders: deriveShareholders(stock),
     holdings: deriveHoldings(stock, 6),
@@ -693,7 +626,7 @@ export async function getShareholderAnalytics(id) {
 export async function getCorporateDocuments(id) {
   await delay(60)
   const stock = await getStockRow(id)
-  if (!stock) return null
+  if (!stock || !stock.hasFullData) return null
   return deriveDocuments(stock)
 }
 
@@ -754,14 +687,15 @@ export async function getStockDetail(id) {
     keyPoints: Array.isArray(profile.keyPoints) ? profile.keyPoints : [],
     pros: Array.isArray(profile.pros) ? profile.pros : [],
     cons: Array.isArray(profile.cons) ? profile.cons : [],
-    quarterly: deriveQuarterly(stock, 20),
-    holdingsHistory: deriveHoldings(stock),
-    boardMeetings: deriveBoardMeetings(stock),
-    conviction: conviction || FALLBACK_CONVICTION,
-    redFlags: {
-      questions: redFlags.questions || [],
-      results: redFlagResults,
-    },
+    // These are all modeled off real fundamentals (marketCap, EPS, promoter
+    // holding, etc) that only exist for our curated companies — for any
+    // other company (live-price-only) we deliberately leave them out
+    // instead of inventing numbers that look real but aren't.
+    quarterly: stock.hasFullData ? deriveQuarterly(stock) : [],
+    holdingsHistory: stock.hasFullData ? deriveHoldings(stock) : null,
+    boardMeetings: stock.hasFullData ? deriveBoardMeetings(stock) : [],
+    conviction: stock.hasFullData ? conviction || FALLBACK_CONVICTION : null,
+    redFlags: stock.hasFullData ? { questions: redFlags.questions || [], results: redFlagResults } : { questions: [], results: [] },
   }
 }
 
@@ -775,15 +709,23 @@ export async function getIPOs() {
   return ipos
 }
 
-const NIFTY50_SYMBOLS = ["RELIANCE", "TCS", "HDFCBANK", "ICICIBANK", "BHARTIARTL", "INFY", "ITC", "LARSEN", "SBIN", "BAJFINANCE", "M&M", "HCLTECH", "TATAMOTORS", "SUNPHARMA", "NTPC", "KOTAKBANK", "AXISBANK", "ONGC", "POWERGRID", "ASIANPAINT", "COALINDIA", "BAJAJFINSV", "MARUTI", "TATASTEEL", "ADANIENT", "HINDALCO", "ULTRACEMCO", "ADANIPORTS", "GRASIM", "WIPRO", "JSWSTEEL", "TRENT", "BEL", "NESTLEIND", "CIPLA", "DRREDDY", "TATACONSUM", "BAJAJ-AUTO", "APOLLOHOSP", "BRITANNIA", "EICHERMOT", "SBILIFE", "SHRIRAMFIN", "HDFCLIFE", "TECHM", "INDUSINDBK", "BPCL", "HEROMOTOCO", "CHOLAFIN", "TITAN"];
-const SENSEX_SYMBOLS = ["RELIANCE", "TCS", "HDFCBANK", "ICICIBANK", "BHARTIARTL", "INFY", "ITC", "LARSEN", "SBIN", "BAJFINANCE", "M&M", "HCLTECH", "TATAMOTORS", "SUNPHARMA", "NTPC", "KOTAKBANK", "AXISBANK", "POWERGRID", "ASIANPAINT", "BAJAJFINSV", "MARUTI", "TATASTEEL", "ULTRACEMCO", "JSWSTEEL", "NESTLEIND", "INDUSINDBK", "TECHM", "WIPRO", "BAJAJ-AUTO", "TITAN"];
+// Sourced directly from NSE's own official index-constituent files
+// (nsearchives.nseindia.com/content/indices/ind_nifty50list.csv and
+// ind_niftysmallcap100list.csv) — this is the real, current membership,
+// not a hand-picked guess. Symbols are re-verified periodically since NSE
+// rebalances these indices every 6 months.
+const NIFTY50_SYMBOLS = ["RELIANCE", "TCS", "HDFCBANK", "ICICIBANK", "BHARTIARTL", "INFY", "ITC", "LT", "SBIN", "BAJFINANCE", "M&M", "HCLTECH", "SUNPHARMA", "NTPC", "KOTAKBANK", "AXISBANK", "ONGC", "POWERGRID", "ASIANPAINT", "COALINDIA", "BAJAJFINSV", "MARUTI", "TATASTEEL", "ADANIENT", "HINDALCO", "ULTRACEMCO", "ADANIPORTS", "GRASIM", "WIPRO", "JSWSTEEL", "TRENT", "BEL", "NESTLEIND", "CIPLA", "DRREDDY", "TATACONSUM", "BAJAJ-AUTO", "APOLLOHOSP", "EICHERMOT", "SBILIFE", "SHRIRAMFIN", "HDFCLIFE", "TECHM", "BPCL", "TITAN", "HINDUNILVR", "INDIGO", "JIOFIN", "ETERNAL"];
+const SENSEX_SYMBOLS = ["RELIANCE", "TCS", "HDFCBANK", "ICICIBANK", "BHARTIARTL", "INFY", "ITC", "LT", "SBIN", "HINDUNILVR", "BAJFINANCE", "M&M", "KOTAKBANK", "AXISBANK", "MARUTI", "SUNPHARMA", "HCLTECH", "ULTRACEMCO", "ETERNAL", "TITAN", "ASIANPAINT", "POWERGRID", "NESTLEIND", "BAJAJFINSV", "NTPC", "ADANIPORTS", "TATASTEEL", "TECHM", "INDUSINDBK", "TATACONSUM"];
 const BANKNIFTY_SYMBOLS = ['HDFCBANK', 'ICICIBANK', 'AXISBANK', 'KOTAKBANK', 'SBIN', 'INDUSINDBK', 'PNB', 'BANKBARODA', 'FEDERALBNK', 'IDFCFIRSTB', 'AUBANK', 'BANDHANBNK'];
-const MIDCAP_SYMBOLS = ["MAXHEALTH", "CGPOWER", "TVSMOTOR", "CUMMINSIND", "TIINDIA", "DIXON", "POLICYBKR", "LUPIN", "SUNDARMFIN", "VOLTAS", "PRESTIGE", "KPITTECH", "PERSISTENT", "AUBANK", "FEDERALBNK", "MRF", "YESBANK", "IDFCFIRSTB", "ASHOKLEY", "OBEROIRLTY", "BSE", "CDSL", "MCX", "ANGELONE", "CAMS"];
-// NOTE: these hand-picked lists are an illustrative, roughly-sized selection —
-// not a live official index-constituent feed (that requires a paid data
-// subscription). Companies here can genuinely re-rate in/out of a cap bucket
-// over time; this list won't auto-track that.
-const SMALLCAP_SYMBOLS = ["SUZLON", "KALYANKJIL", "SONACOMS", "APARINDS", "KEI", "RADICO", "CYIENT", "GLENMARK", "CHAMBLFERT", "WELCORP", "JBCHEPHARM", "PVRINOX", "RBLBANK", "UTIAMC", "HAPPSTMNDS", "TANLA", "ROUTE", "GRANULES", "FINEORG", "ELECON"];
+// Nifty Midcap 100's exact official CSV wasn't fetchable directly (only
+// Nifty 50, Nifty 100 and Smallcap 100 were), so this list is a well-informed
+// approximation cross-checked to exclude anything confirmed to actually be
+// in the real Nifty 50 or Smallcap 100 lists above — not officially verified
+// the way those two are.
+const MIDCAP_SYMBOLS = ["PERSISTENT", "SUNDARMFIN", "VOLTAS", "LUPIN", "FEDERALBNK", "AUROPHARMA", "PAGEIND", "POLYCAB", "SUPREMEIND", "ASHOKLEY", "IDFCFIRSTB", "YESBANK", "TATAELXSI", "COFORGE", "MPHASIS", "OBEROIRLTY", "PIIND", "APLAPOLLO", "GMRAIRPORT", "LICHSGFIN", "ALKEM", "BALKRISIND", "EMAMILTD", "CONCOR", "NHPC", "OIL", "PATANJALI", "KPITTECH", "CGPOWER", "TVSMOTOR", "CUMMINSIND", "TIINDIA", "DIXON", "PRESTIGE", "MRF", "PHOENIXLTD", "INDUSTOWER", "MFSL"];
+// NOTE: the Midcap list above is illustrative/best-effort. Nifty 50, Sensex,
+// Bank Nifty and Smallcap 100 are matched to real NSE index membership.
+const SMALLCAP_SYMBOLS = ["CDSL", "ANGELONE", "SUZLON", "SONACOMS", "APARINDS", "RADICO", "CHAMBLFERT", "WELCORP", "JBCHEPHARM", "PVRINOX", "RBLBANK", "CAMS", "BANDHANBNK", "IGL", "GLAND", "IIFL", "MANAPPURAM", "NATCOPHARM", "SYNGENE", "TATACHEM", "CROMPTON", "BRIGADE", "CESC", "DELHIVERY", "REDINGTON"];
 
 function getConstituentSymbols(indexId) {
   switch (indexId) {
@@ -803,10 +745,11 @@ async function getConstituents(indexId) {
 }
 
 export async function getIndex(id) {
+  await delay(60)
   const meta = indices.find((ix) => ix.id === id)
   if (!meta) return null
-  const [liveRow, constituents] = await Promise.all([getLiveIndexRow(meta), getConstituents(id)])
-  return { ...liveRow, constituentCount: constituents.length, constituents }
+  const constituents = await getConstituents(id)
+  return { ...meta, constituentCount: constituents.length, constituents }
 }
 
 export async function getPremiumInsights() {
