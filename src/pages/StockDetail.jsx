@@ -303,6 +303,12 @@ export default function StockDetail() {
         </AutoHeal>
       </SectionAnchor>
 
+      <SectionAnchor id="documents" title="Documents" subtitle="Announcements, annual reports, credit ratings and earnings calls">
+        <AutoHeal name="Documents">
+          {documents ? <CorporateDocuments stock={safeStock} data={documents} /> : <div className="mt-4 p-8 text-center text-sm text-slate-500">Documents fetching...</div>}
+        </AutoHeal>
+      </SectionAnchor>
+
       <div className="card p-4">
         <SectionTitle title="Quarterly Results" subtitle="Latest four quarters of profit / loss performance · modeled estimate, not from official filings" />
         <AutoHeal name="Quarterly Results">

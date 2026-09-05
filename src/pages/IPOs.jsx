@@ -143,16 +143,18 @@ export default function IPOs() {
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-8">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-white">IPO Watch</h1>
-        <p className="mt-1 text-sm text-slate-400">Live and upcoming public issues on NSE with GMP, lot size and subscription data.</p>
+        <p className="mt-1 text-sm text-slate-400">Sample IPO listings with price band, lot size, GMP and subscription data.</p>
+      </div>
+
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200">
+        This is illustrative sample data (based on real past IPOs), not a live feed — dates, GMP and subscription
+        figures are not current. There is no reliable free public source for real-time Indian IPO GMP data, so this
+        section isn't live yet. For current live IPO information, check the NSE/BSE website or your broker app.
       </div>
 
       <Section title="Currently Open" count={open.length} items={open} />
       <Section title="Upcoming" count={upcoming.length} items={upcoming} />
-      <Section title="Recently Listed" count={listed.length} items={listed} />
-
-      <div className="rounded-xl border border-slate-800 bg-terminal-900/40 p-4 text-xs text-slate-500">
-        GMP data is indicative and simulated for demo purposes. Always verify from a SEBI-registered intermediary before applying.
-      </div>
+      <Section title="Sample Past IPOs" count={listed.length} items={listed} />
     </div>
   )
 }

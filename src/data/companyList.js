@@ -84,4 +84,9 @@ export const EXTRA_COMPANIES = {
   RBLBANK: { name: 'RBL Bank', sector: 'Banking' },
   UTIAMC: { name: 'UTI Asset Management Company', sector: 'Financial Services' },
   HAPPSTMNDS: { name: 'Happiest Minds Technologies', sector: 'Information Technology' },
+  TANLA: { name: 'Tanla Platforms', sector: 'Information Technology' },
+  ROUTE: { name: 'Route Mobile', sector: 'Information Technology' },
+  GRANULES: { name: 'Granules India', sector: 'Pharmaceuticals' },
+  FINEORG: { name: 'Fine Organic Industries', sector: 'Chemicals' },
+  ELECON: { name: 'Elecon Engineering Company', sector: 'Capital Goods' },
 }

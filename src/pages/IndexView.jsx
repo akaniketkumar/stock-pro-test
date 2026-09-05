@@ -130,7 +130,9 @@ export default function IndexView() {
             </div>
             <p className="mt-1 text-sm text-slate-500">
               {EQUITY_INDICES.has(index.id)
-                ? `${index.constituentCount} constituent stock${index.constituentCount !== 1 ? 's' : ''} · Click any row to open its full analysis`
+                ? `${index.constituentCount} constituent stock${index.constituentCount !== 1 ? 's' : ''} · illustrative selection, not the official live constituent list · click any row to open its full analysis`
+                : index.isApprox
+                ? 'Approximated from live international gold (COMEX) and USD/INR — will not exactly match the MCX price'
                 : 'Non-equity benchmark · no listed constituents'}
             </p>
           </div>

@@ -136,7 +136,7 @@ export default function CandleChart({ candles, height = 380 }) {
 
     return {
       candles, PAD_L, PAD_R, PAD_T, plotH, VOL_H, RSI_H, rsiTop, step, cw, y, yv, yr, min, max, maxVol, bw, ticks,
-      sma20, sma50, smaPath, closeLineD, closeAreaD, rsiLineD, rsiAreaD, xAt, volTop,
+      sma20, sma50, smaPath, closeLineD, closeAreaD, rsiLineD, rsiAreaD, rsiSeries, xAt, volTop,
     }
   }, [candles, width, height, showRSI])
 
@@ -262,11 +262,20 @@ export default function CandleChart({ candles, height = 380 }) {
             <path d={layout.rsiAreaD} fill="url(#rsiFillGrad)" stroke="none" />
             <path d={layout.rsiLineD} fill="none" stroke="#a78bfa" strokeWidth="1.4" />
             <text x={PAD_L} y={layout.rsiTop - 3} fill="#94a3b8" fontSize="9" fontFamily="JetBrains Mono, monospace">RSI (14)</text>
+            {hover !== null && layout.rsiSeries && layout.rsiSeries[hover] != null && (
+              <text x={PAD_L + 52} y={layout.rsiTop - 3} fill="#c4b5fd" fontSize="9" fontFamily="JetBrains Mono, monospace">
+                {layout.rsiSeries[hover].toFixed(1)}
+              </text>
+            )}
           </>
         )}
 
         {hoverCandle && (
           <line x1={hoverX} x2={hoverX} y1={layout.PAD_T} y2={totalHeight} stroke="#334155" strokeWidth="1" />
+        )}
+
+        {hover !== null && layout.rsiSeries && layout.rsiSeries[hover] != null && (
+          <circle cx={hoverX} cy={layout.yr(layout.rsiSeries[hover])} r="2.5" fill="#a78bfa" />
         )}
 
         {hoverY !== null && (

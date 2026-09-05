@@ -17,6 +17,11 @@ function IndexGrid({ indices }) {
           <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
             {ix.name}
             <Help text="Index level and the day's change in points/percent versus the previous close. Click a card to view its constituent stocks." iconSize="h-3 w-3" />
+            {ix.isLive === false && (
+              <span className="ml-auto rounded bg-slate-800 px-1 py-0.5 text-[8px] font-bold text-slate-500" title="No free live source for this one — last known value">
+                STATIC
+              </span>
+            )}
           </div>
           <div className="mt-1 font-mono text-sm font-bold text-slate-100">{formatNumber(ix.value, 2)}</div>
           <div className={`font-mono text-xs ${changeClass(ix.changePct)}`}>

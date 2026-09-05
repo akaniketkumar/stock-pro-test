@@ -119,6 +119,7 @@ export function deriveQuarterly(stock, periods = 4) {
       ((stock.netProfit || 1000) / 4) * Math.pow(1 + pg, (periods - 1 - i) / 4) * (0.96 + rand() * 0.08)
     )
     return {
+      id: `${stock.id}-q${i}`,
       period,
       revenue,
       netProfit: profit,
@@ -357,10 +358,12 @@ export function deriveHoldings(stock, periods = 4) {
 
 export function deriveShareholders(stock) {
   const rand = seededRand(`${stock.id}-sh`)
-  const annualProfit = stock.netProfit || 1000
-  const shares = stock.eps > 0 ? annualProfit / stock.eps : 100
-  const publicHolding = stock.publicHolding || 20
-  const base = Math.max(2, Math.min(60, Math.round((3 + shares * 0.22 + publicHolding * 0.5) * (0.8 + rand() * 0.4))))
+  // Realistic shareholder count scales with company size — large NSE
+  // companies typically have tens of lakhs of retail shareholders, small
+  // caps have tens of thousands. sqrt(marketCap) gives a sensible curve
+  // across that whole range instead of a flat/tiny number.
+  const mcap = Math.max(stock.marketCap || 1000, 1)
+  const base = Math.round((15000 + Math.sqrt(mcap) * 2500) * (0.85 + rand() * 0.3))
   const labels = quarterLabels(6)
   const history = labels.map((period, i) => {
     const total = Math.max(1, Math.round(base * Math.pow(1 + (0.015 + rand() * 0.03), 5 - i)))
@@ -371,39 +374,14 @@ export function deriveShareholders(stock) {
   return { current: history[0], history }
 }
 
+// We don't have a real corporate-filings feed (that requires a paid feed or
+// scraping NSE's own site, which we avoid). Rather than inventing specific
+// fake facts under a real company's name — a fabricated dividend amount, a
+// fake "AAA" credit rating, a made-up buyback — this returns an honestly
+// empty structure, and the UI points people to the company's real NSE page
+// for actual filings instead.
 export function deriveDocuments(stock) {
-  const rand = seededRand(`${stock.id}-d`)
-  const name = stock.name
-  const announcements = [
-    { date: '2026-08-06', title: `${name}: Quarterly Results & Board Meeting`, type: 'Results' },
-    { date: '2026-07-28', title: `${name}: Board approves interim dividend of ₹2.50/share`, type: 'Dividend' },
-    { date: '2026-07-14', title: `${name}: Analyst / Investor Meeting & Earnings Call`, type: 'Concall' },
-    { date: '2026-06-24', title: `${name}: Credit rating reaffirmed by rating agencies`, type: 'Credit Rating' },
-    { date: '2026-05-30', title: `${name}: Business update on subsidiary operations`, type: 'Subsidiary' },
-    { date: '2026-05-09', title: `${name}: Board considers buyback proposal`, type: 'Buyback' },
-    { date: '2026-04-18', title: `${name}: Shareholding pattern for quarter ended Mar 2026`, type: 'Shareholding' },
-    { date: '2026-03-27', title: `${name}: SEBI / exchange clarification on media reports`, type: 'Clarification' },
-  ]
-  const annualReports = ['FY26', 'FY25', 'FY24', 'FY23', 'FY22'].map((year) => ({
-    year,
-    title: `${name} Annual Report ${year} (PDF)`,
-    type: 'PDF',
-  }))
-  const agencies = ['ICRA', 'CRISIL', 'CARE Ratings', 'India Ratings']
-  const ratings = agencies.map((agency, i) => ({
-    agency,
-    rating: rand() > 0.4 ? 'AAA' : 'AA+',
-    outlook: rand() > 0.75 ? 'Stable' : 'Positive',
-    date: `2026-0${i + 1}-${10 + Math.floor(rand() * 15)}`,
-  }))
-  const quarters = quarterLabels(4)
-  const concalls = quarters.map((q, i) => ({
-    quarter: q,
-    date: dateOffset(i * 95 + 20),
-    transcript: `${name} ${q} Earnings Call Transcript (PDF)`,
-    audio: `${name} ${q} Earnings Call Audio`,
-  }))
-  return { announcements, annualReports, ratings, concalls }
+  return { announcements: [], annualReports: [], ratings: [], concalls: [] }
 }
 
 export function derivePeers(stock, allStocks) {
