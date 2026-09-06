@@ -151,6 +151,47 @@ async function fetchLiveQuote(sym) {
   }
 }
 
+// Real fundamentals (market cap, P/E, sector, business description) from
+// Yahoo Finance for ANY company — cached per symbol for the session, since
+// this changes slowly and we don't want to refetch it on every 30s price
+// refresh. This is what lets non-curated / searched companies show genuine
+// numbers instead of dashes.
+const profileCache = new Map()
+
+async function fetchLiveProfile(sym) {
+  if (profileCache.has(sym)) return profileCache.get(sym)
+  const promise = (async () => {
+    try {
+      const cacheKey = `stockpro_profile_${sym}`
+      try {
+        const cached = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(cacheKey) : null
+        if (cached) return JSON.parse(cached)
+      } catch {
+        // ignore cache read errors
+      }
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 5000)
+      const res = await fetch(`/api/profile?symbol=${encodeURIComponent(sym)}`, { signal: controller.signal })
+      clearTimeout(timer)
+      if (!res.ok) return null
+      const data = await res.json()
+      const profile = data && data.success ? compact(data.profile) : null
+      try {
+        if (profile && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem(cacheKey, JSON.stringify(profile))
+        }
+      } catch {
+        // sessionStorage may be full/unavailable — not critical
+      }
+      return profile
+    } catch {
+      return null
+    }
+  })()
+  profileCache.set(sym, promise)
+  return promise
+}
+
 // Resolves a symbol into a real stock row with a live price where possible.
 // status: 'ok' | 'invalid' (not a real company) | 'unavailable' (real company, no price right now)
 async function resolveStock(id) {
@@ -179,12 +220,27 @@ async function resolveStock(id) {
     }
   }
 
-  // True only for the curated stocks.json companies that have real
-  // fundamentals (marketCap, EPS, promoter holding, etc). Everything else —
-  // EXTRA_COMPANIES entries and any company resolved only via live search —
-  // has just a live price and no real financial data behind it, so deep
-  // sections (shareholding, quarterly results, peers) must not pretend
-  // otherwise with made-up numbers.
+  // Curated stocks.json entries already carry real fundamentals. Everything
+  // else (EXTRA_COMPANIES, live-search-only companies) doesn't — so fetch
+  // real fundamentals from Yahoo Finance for those, instead of leaving every
+  // ratio as a dash or fabricating numbers. Only the fields we don't already
+  // have are filled in — real curated data is never overwritten.
+  const needsProfile = !(typeof base.marketCap === 'number' && typeof base.eps === 'number')
+  if (needsProfile) {
+    const profile = await fetchLiveProfile(sym)
+    if (profile) {
+      base = { ...profile, ...base, name: base.name || profile.name }
+      // Prefer Yahoo's real sector/industry over our generic "Equity" placeholder.
+      if (profile.sector && (!base.sector || base.sector === 'Equity')) base.sector = profile.sector
+      if (profile.industry && (!base.industry || base.industry === 'Diversified')) base.industry = profile.industry
+    }
+  }
+
+  // True whenever we have real fundamentals behind the numbers — either
+  // from our curated stocks.json, or fetched live from Yahoo just above.
+  // Only companies where even Yahoo has nothing (very illiquid/obscure
+  // scrips) fall back to price-only, and deep sections stay honestly empty
+  // for those instead of showing made-up figures.
   const hasFullData = typeof base.marketCap === 'number' && typeof base.eps === 'number'
 
   if (live) {
@@ -671,10 +727,17 @@ export async function getStockDetail(id) {
 
   const redFlagResults = getRedFlagResults(stock.id)
   const conviction = deriveConviction(stock, redFlagResults || [])
-  const profile = stockProfiles[stock.id] || {
-    about: `${stock.name || stock.symbol} is an active listed company operating in the Indian Equity Markets.`,
+  const curatedProfile = stockProfiles[stock.id]
+  const profile = curatedProfile || {
+    // Real business description from Yahoo Finance (fetched for any
+    // non-curated company) beats a generic one-liner when we have it.
+    about:
+      stock.about ||
+      `${stock.name || stock.symbol} is an active listed company operating in the Indian Equity Markets.`,
     keyPoints: [
       `Core industry: ${stock.industry || 'Diversified'}.`,
+      ...(stock.website ? [`Website: ${stock.website}`] : []),
+      ...(stock.employees ? [`Employees: ${Number(stock.employees).toLocaleString('en-IN')}`] : []),
     ],
     pros: ['Established market presence'],
     cons: ['Market volatility exposure'],

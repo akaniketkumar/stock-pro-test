@@ -11,7 +11,7 @@ import { changeClass, formatNumber } from '../utils/format'
 
 function IndexGrid({ indices }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {indices.map((ix) => (
         <Link key={ix.id} to={`/index/${ix.id}`} className="card card-hover group block p-3">
           <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
